@@ -1,6 +1,6 @@
 # 一键启动 Laya · One-Click Laya
 
-> **本地运行的 System-1 决策模型，一条命令在三端跑起来。** 无需懂 Python / PyTorch / 模型部署，自带图形面板管理服务。
+> **本地运行的 System-1 决策模型，一条命令在三端跑起来。** 无需懂 Python / PyTorch / 模型部署，自带 Web 管理面板管理服务。
 
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue)](https://github.com/rexleimo/laya-setup)
 [![Python](https://img.shields.io/badge/python-3.9%2B-3776AB?logo=python&logoColor=white)](https://github.com/rexleimo/laya-setup)
@@ -25,7 +25,7 @@ Laya 是一个**本地运行的 System-1 决策模型**：你给它一段内容�
 |------|------------------|
 | 跑个本地模型要懂 Python/venv/torch/模型部署 | 全部自动，`start.bat` / `./start.sh` 一条命令 |
 | 下载 HuggingFace 权重国内慢 / 失败 | 默认国内镜像，海外可切官方源，附手动下载引导 |
-| 起停服务、看状态要敲命令 | 自带 GUI 面板，点按钮启停、看健康状态、看日志 |
+| 起停服务、看状态要敲命令 | 自带 Web 管理面板，点按钮启停、看健康状态、看日志 |
 | 想让 AI Agent（Cline/Roo/Claude/AIOS）调用 | 内置 MCP 桥，5 个开箱即用的工具 |
 | 已有 TypeSafe SDK 工具链 | `TYPESAFE_BASE_URL` 指过来即可无缝切换，零改代码 |
 | 数据不能出本机 | 完全本地推理，隐私数据不出境 |
@@ -34,7 +34,7 @@ Laya 是一个**本地运行的 System-1 决策模型**：你给它一段内容�
 
 - 🚀 **真·一键**：首次自动搭环境、下权重、起服务；之后直接启动
 - 🖥️ **三端通用**：Windows / Linux / macOS 逻辑一致，自动处理平台差异
-- 🖼️ **图形面板**：tkinter 编写，零额外依赖，启停服务 / 看状态 / 下模型 / 看日志
+- 🖼️ **Web 管理面板**：浏览器打开，零额外依赖，启停服务 / 看状态 / 下模型 / 看日志
 - 🔌 **双接口**：Laya 原生 `/predict` + TypeSafe 兼容 `/v1/systemone`
 - 🤖 **MCP 桥**：`laya_decide` / `laya_triage` / `laya_guard` / `laya_email` / `laya_health`
 - 🇨🇳 **下载无忧**：国内镜像默认，海外官方源，ModelScope 备选，失败给手动指引
@@ -77,7 +77,7 @@ python onekey.py status     # 查看状态 + 健康检查
 python onekey.py detach     # 后台方式起服务（不占用当前终端）
 python onekey.py doctor     # 环境预检：Python/uv/venv/磁盘/模型/下载源
 python onekey.py model      # 下载模型权重（--source mirror|official）
-python onekey.py gui        # 打开图形管理面板
+python onekey.py panel      # 打开 Web 管理面板 (gui 为别名)
 python onekey.py web        # 用默认浏览器打开状态页
 ```
 
@@ -103,18 +103,15 @@ python onekey.py panel # 或任意平台直接用 Python 调用
 
 `start-gui` 会在本地起一个管理服务（`http://127.0.0.1:8398`）并**自动用浏览器打开**，可**启动/停止服务、查看健康与模型状态、下载权重、安装 MCP/GPU 依赖、环境自检，并实时查看日志**。
 
-> 用浏览器而非 tkinter，是因为不少 Python（尤其 uv 安装的精简版）默认不带 tkinter，会导致双击 GUI 毫无反应；浏览器面板跨平台 100% 可用。若你的 Python 带 tkinter，也可用 `python onekey.py gui` 打开原生桌面面板。
+> 用浏览器面板是因为不少 Python（尤其 uv 安装的精简版）默认不带 tkinter，会导致双击 GUI 毫无反应；浏览器面板跨平台 100% 可用。`python onekey.py gui` 现在也指向同一个 Web 面板。
 
 ### 在线试用（demo.html）
 
-`demo.html` 是一个交互式试用页：左侧填入文本 + 类型化问题，点「⚡ 决策」即可实时看到 Laya 返回的分类 / 评分 / 概率。
+`demo.html` 是一个交互式体验页：左侧填入文本 + 类型化问题，点「决策」即可看到分类 / 评分 / 概率结果。
 
-```bash
-# 服务运行后，用浏览器打开 demo.html：
-#   直接双击，或在项目目录 python -m http.server 8000 后访问 localhost:8000/demo.html
-```
-
-数据打到本机 `http://127.0.0.1:8399`，不出本机。落地页首页也有「在线试用」入口。
+页面为**纯前端演示模式**：结果由浏览器按关键词规则本地模拟，**不依赖、也不连接任何服务**，
+双击即可打开（或挂在任意静态托管上），用来体验 Laya 的调用与返回结构。
+要接真实模型，在本地启动服务后调用 `POST http://127.0.0.1:8399/predict` 即可（见 LAYA.md）。
 
 ---
 
@@ -165,7 +162,28 @@ python download_model.py --variant typed-decisions       # 专用决策头（~84
 
 **Q：能接入我现有的工具链吗？** 可以。HTTP 端设 `TYPESAFE_BASE_URL=http://127.0.0.1:8399` 即可作为 TypeSafe 兼容替代；或用 MCP 桥接入各类代码 Agent。
 
-**Q：服务怎么停？** `python onekey.py stop`，或前台运行时按 `Ctrl+C`，或在 GUI 点「停止服务」。
+**Q：服务怎么停？** `python onekey.py stop`，或前台运行时按 `Ctrl+C`，或在管理面板点「停止服务」。
+
+---
+
+## 来自梦兽编程的更多作品
+
+Laya 一键启动由 [梦兽编程（RexAI）](https://rexai.top) 维护。除了给开源模型做运维工具，我们也一直在造自己的东西——如果这个项目对你有用，不妨看看这些：
+
+| 作品 | 一句话介绍 | 链接 |
+|---|---|---|
+| **HNO** | Go 原生多 Agent 框架，Agent / Team / Workflow 共享组件，性能可复现 | [GitHub](https://github.com/rexleimo/agno-Go) · [官网](https://hno.rexai.top) |
+| **AIOS** | Local-First Agent 工作流层，给 codex / claude / opencode 加记忆、团队与验证 | [GitHub](https://github.com/rexleimo/aios) · [文档](https://cli.rexai.top) |
+| **rex-harness** | AIOS 底层的工作流内核（Observation → Fact → Capability → Command → Evidence） | [GitHub](https://github.com/rexleimo/rex-harness) |
+| **Hermes Console** | Hermes Agent 可视化运维中台：装 Agent、起 Gateway、配模型与消息渠道，全程免 SSH | [GitHub](https://github.com/rexleimo/hermes-setup) |
+| **一览 Yilan** | iOS 原生风格的移动浏览器，以书签管理为核心，隐私优先、免费无登录 | [GitHub](https://github.com/rexleimo/yilang-browser) |
+| **RexAI Desktop** | rexai 桌面端官方安装包仓库，Windows / macOS / Linux 免登录直下、自动更新 | [GitHub](https://github.com/rexleimo/rexai-install) |
+| **REX-GAME** | 可玩民俗文化馆：甲骨文、二十四节气、山海拾遗、掷筊、英歌，即开即玩 | [在线玩](https://game.rexai.top) · [GitHub](https://github.com/rexleimo/rex-game) |
+| **Rex 工具集** | 8 个免费在线工具：下载、创作、图片与开发，浏览器打开即用、无广告 | [tool.rexai.top](https://tool.rexai.top) |
+| **青砚 QINGYAN** | 本地优先的长篇与剧本 AI 创作工作台：故事地图、人物档案、伏笔追踪 | [qingyan.im](https://qingyan.im) |
+| **Inkloom** | 视觉 AI 创作工作流平台：想法 → 生图 → 参考图编辑 → 图生视频，一条可复用流程 | [inkloom.im](https://inkloom.im) |
+
+> 完整产品名录（含 REX AI Coding 订阅、内测中的 AIOS Pro / REX Videos 等）见 **[rexai.top/products](https://rexai.top/products/)**。
 
 ---
 
