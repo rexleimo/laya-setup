@@ -1,13 +1,13 @@
 @echo off
-REM 一键启动 (onekey) — Windows 入口。跨平台逻辑都在 onekey.py，这里只负责引导。
-REM   start.bat            首次: 建 venv、装依赖、下 english 权重、起 API
-REM   start.bat server     直接起 API (http://127.0.0.1:8399)
-REM   start.bat gpu        CUDA 版 torch
-REM   start.bat mcp        装 MCP 桥接依赖
-REM   start.bat stop       停止服务
-REM   start.bat status     查看状态 + 健康检查
-REM   start.bat gui        图形管理面板
-REM   start.bat detach     后台起服务
+REM One-click Laya - Windows entry point. All logic lives in onekey.py.
+REM   start.bat            first run: create venv, install deps, download weights, start API
+REM   start.bat server     start the API directly
+REM   start.bat gpu        CUDA torch
+REM   start.bat mcp        install MCP bridge deps
+REM   start.bat stop       stop the service
+REM   start.bat status     show status + health
+REM   start.bat gui        open the GUI panel
+REM   start.bat detach     start in the background
 setlocal
 cd /d %~dp0
 
@@ -37,7 +37,8 @@ if %errorlevel%==0 (
 
 :check
 if not exist %VPY% (
-  echo [onekey] 无法创建虚拟环境。请先安装 Python 3.9+ 或 uv ^(https://astral.sh/uv^)。
+  echo [onekey] Could not create the virtual environment.
+  echo [onekey] Please install Python 3.9+ or uv ^(https://astral.sh/uv^) first.
   exit /b 1
 )
 
