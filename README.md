@@ -32,13 +32,13 @@ Laya 是一个**本地运行的 System-1 决策模型**：你给它一段内容�
 
 ## 特性
 
-- 🚀 **真·一键**：首次自动搭环境、下权重、起服务；之后直接启动
-- 🖥️ **三端通用**：Windows / Linux / macOS 逻辑一致，自动处理平台差异
-- 🖼️ **Web 管理面板**：浏览器打开，零额外依赖，启停服务 / 看状态 / 下模型 / 看日志
-- 🔌 **双接口**：Laya 原生 `/predict` + TypeSafe 兼容 `/v1/systemone`
-- 🤖 **MCP 桥**：`laya_decide` / `laya_triage` / `laya_guard` / `laya_email` / `laya_health`
-- 🇨🇳 **下载无忧**：国内镜像默认，海外官方源，ModelScope 备选，失败给手动指引
-- 🔒 **本地隐私**：全流程本机推理，适合处理敏感工单 / 邮件 / 内部数据
+- **真·一键**：首次自动搭环境、下权重、起服务；之后直接启动
+- **三端通用**：Windows / Linux / macOS 逻辑一致，自动处理平台差异
+- **Web 管理面板**：浏览器打开，零额外依赖，启停服务 / 看状态 / 下模型 / 看日志
+- **双接口**：Laya 原生 `/predict` + TypeSafe 兼容 `/v1/systemone`
+- **MCP 桥**：`laya_decide` / `laya_triage` / `laya_guard` / `laya_email` / `laya_health`
+- **下载无忧**：国内镜像默认，海外官方源，ModelScope 备选，失败给手动指引
+- **本地隐私**：全流程本机推理，适合处理敏感工单 / 邮件 / 内部数据
 
 ---
 
@@ -166,29 +166,27 @@ python download_model.py --variant typed-decisions       # 专用决策头（~84
 
 ---
 
-## 来自梦兽编程的更多作品
+## 关于 · 梦兽编程
 
-Laya 一键启动由 [梦兽编程（RexAI）](https://rexai.top) 维护。除了给开源模型做运维工具，我们也一直在造自己的东西——如果这个项目对你有用，不妨看看这些：
+**这个项目由 [梦兽编程（RexAI）](https://rexai.top) 维护。** 我们在博客与产品站持续写 Agent 工程实践、开源我们的自研项目——如果这个仓库对你有用，欢迎关注：
 
-| 作品 | 一句话介绍 | 链接 |
-|---|---|---|
-| **HNO** | Go 原生多 Agent 框架，Agent / Team / Workflow 共享组件，性能可复现 | [GitHub](https://github.com/rexleimo/agno-Go) · [官网](https://hno.rexai.top) |
-| **AIOS** | Local-First Agent 工作流层，给 codex / claude / opencode 加记忆、团队与验证 | [GitHub](https://github.com/rexleimo/aios) · [文档](https://cli.rexai.top) |
-| **rex-harness** | AIOS 底层的工作流内核（Observation → Fact → Capability → Command → Evidence） | [GitHub](https://github.com/rexleimo/rex-harness) |
-| **Hermes Console** | Hermes Agent 可视化运维中台：装 Agent、起 Gateway、配模型与消息渠道，全程免 SSH | [GitHub](https://github.com/rexleimo/hermes-setup) |
-| **一览 Yilan** | iOS 原生风格的移动浏览器，以书签管理为核心，隐私优先、免费无登录 | [GitHub](https://github.com/rexleimo/yilang-browser) |
-| **RexAI Desktop** | rexai 桌面端官方安装包仓库，Windows / macOS / Linux 免登录直下、自动更新 | [GitHub](https://github.com/rexleimo/rexai-install) |
-| **REX-GAME** | 可玩民俗文化馆：甲骨文、二十四节气、山海拾遗、掷筊、英歌，即开即玩 | [在线玩](https://game.rexai.top) · [GitHub](https://github.com/rexleimo/rex-game) |
-| **Rex 工具集** | 8 个免费在线工具：下载、创作、图片与开发，浏览器打开即用、无广告 | [tool.rexai.top](https://tool.rexai.top) |
-| **青砚 QINGYAN** | 本地优先的长篇与剧本 AI 创作工作台：故事地图、人物档案、伏笔追踪 | [qingyan.im](https://qingyan.im) |
-| **Inkloom** | 视觉 AI 创作工作流平台：想法 → 生图 → 参考图编辑 → 图生视频，一条可复用流程 | [inkloom.im](https://inkloom.im) |
+**博客 & 产品站：[rexai.top](https://rexai.top)** · **GitHub：[@rexleimo](https://github.com/rexleimo)** · **全部作品：[rexai.top/products](https://rexai.top/products/)**
 
-> 完整产品名录（含 REX AI Coding 订阅、内测中的 AIOS Pro / REX Videos 等）见 **[rexai.top/products](https://rexai.top/products/)**。
+几个有代表性的开源作品：
+
+| 作品 | 一句话介绍 |
+|---|---|
+| [HNO](https://github.com/rexleimo/agno-Go) | Go 原生多 Agent 框架，Agent / Team / Workflow 共享组件，性能可复现 |
+| [AIOS](https://github.com/rexleimo/aios) | Local-First Agent 工作流层，给 codex / claude / opencode 加记忆、团队与验证 |
+| [rex-harness](https://github.com/rexleimo/rex-harness) | AIOS 底层的工作流内核（Observation → Fact → Capability → Command → Evidence） |
+| [Hermes Console](https://github.com/rexleimo/hermes-setup) | Hermes Agent 可视化运维中台：装 Agent、起 Gateway、配模型与渠道，全程免 SSH |
+| [一览 Yilan](https://github.com/rexleimo/yilang-browser) | iOS 原生风格的移动浏览器，以书签管理为核心，隐私优先、免费无登录 |
+| [REX-GAME](https://game.rexai.top) | 可玩民俗文化馆：甲骨文、二十四节气、山海拾遗，即开即玩 |
 
 ---
 
 ## Star 历史 & 致谢
 
-如果它帮你省去了搭环境的麻烦，欢迎点个 ⭐。模型与推理来自 [NandhaKishorM/laya](https://github.com/NandhaKishorM/laya)，本仓库专注于**跨平台一键启动与运维**。
+如果它帮你省去了搭环境的麻烦，欢迎点个 Star。模型与推理来自 [NandhaKishorM/laya](https://github.com/NandhaKishorM/laya)，本仓库专注于**跨平台一键启动与运维**。
 
 **Topics:** `laya` `local-ai` `decision-model` `system-1` `one-click` `self-hosted` `typesafe` `mcp` `on-premise` `llm-alternative` `python` `cross-platform`
