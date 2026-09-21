@@ -4,75 +4,105 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在线试用 · 一键启动 Laya — 本地决策模型</title>
-<meta name="description" content="交互式试用 Laya 本地决策模型：输入文本与类型化问题，实时查看分类 / 评分 / 概率结果。">
+<meta name="description" content="交互式体验 Laya 决策模型的调用逻辑：输入文本与类型化问题，实时查看分类 / 评分 / 概率结果。本页为纯前端演示，数据由浏览器本地模拟。">
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563ff'/%3E%3Cpath d='M35 8 16 37h12l-2 19 18-29H32l3-19z' fill='%23fff'/%3E%3C/svg%3E">
 <style>
 :root{
-  --bg:#0b1020;--bg2:#121a3a;--card:#151d3b;--line:#243056;--txt:#e8ecf8;--muted:#9aa6c9;
-  --brand:#6ea8fe;--brand2:#a78bfa;--ok:#34d399;--warn:#fbbf24;--err:#f87171;--code:#0e1630;
-  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+  --bg:#fafafa; --card:#ffffff; --soft:#f2f4f7; --line:rgba(27,27,31,.10); --line2:rgba(27,27,31,.18);
+  --txt:#1b1b1f; --muted:rgba(27,27,31,.62); --faint:rgba(27,27,31,.45);
+  --brand:#2563ff; --brand-h:#1d4fd8; --brand-weak:#e8f1ff;
+  --dark:#05060e;
+  --ok:#16a34a; --ok-weak:#e7f6ee; --warn:#d97706; --warn-weak:#fdf3e3; --err:#dc2626; --err-weak:#fdecec;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:Inter,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:var(--sans);color:var(--txt);
-  background:radial-gradient(1000px 500px at 75% -10%,#1b2a5e 0,transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2));min-height:100vh}
-a{color:var(--brand);text-decoration:none}
-.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
-nav{border-bottom:1px solid var(--line);background:rgba(11,16,32,.6)}
+body{margin:0;font-family:var(--sans);color:var(--txt);background:var(--bg);min-height:100vh;
+  -webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+svg.ic{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline}
+/* nav */
+nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  background:rgba(5,6,14,.78);border-bottom:1px solid rgba(255,255,255,.06);color:#fff}
 nav .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
-.logo{font-weight:700;font-size:17px}
-.logo a{color:var(--txt)}
-h1{font-size:24px;margin:26px 0 4px}
-.sub{color:var(--muted);margin:0 0 22px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15.5px}
+.logo a{color:rgba(255,255,255,.9)} .logo a:hover{color:#fff}
+.logochip{width:28px;height:28px;border-radius:8px;background:var(--brand);display:inline-flex;
+  align-items:center;justify-content:center;color:#fff;flex:none}
+.navbtn{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;font-size:13px;
+  color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.16);transition:.18s}
+.navbtn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+/* head */
+.head{padding:34px 0 6px}
+h1{font-size:26px;margin:0 0 6px;letter-spacing:-.015em;font-weight:720}
+.sub{color:var(--muted);margin:0;font-size:14.5px;line-height:1.7;max-width:760px}
+.sub code,.hint code{background:var(--soft);border:1px solid var(--line);padding:1px 6px;border-radius:5px;
+  font-size:12px;font-family:var(--mono)}
+.modechip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:550;border-radius:999px;
+  padding:5px 13px;margin:16px 0 22px;background:var(--warn-weak);color:var(--warn)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
-.panel h2{margin:0 0 12px;font-size:15px;color:var(--muted);font-weight:600}
-label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
-textarea{width:100%;background:var(--code);border:1px solid var(--line);border-radius:10px;color:#c7d4ff;
-  font-family:var(--mono);font-size:13px;padding:12px;resize:vertical;line-height:1.5}
-textarea:focus{outline:none;border-color:var(--brand)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.panel h2{margin:0 0 14px;font-size:13px;color:var(--muted);font-weight:620;letter-spacing:.04em}
+label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px;font-weight:550}
+label kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line2);border-radius:4px;padding:0 5px;color:var(--muted)}
+textarea{width:100%;background:var(--soft);border:1px solid var(--line);border-radius:10px;color:var(--txt);
+  font-family:var(--mono);font-size:12.5px;padding:12px;resize:vertical;line-height:1.6}
+textarea:focus{outline:none;border-color:var(--brand);background:var(--card)}
 #state{min-height:96px}
 #questions{min-height:230px}
-.presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-.presets button,.act button{background:var(--code);border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:7px 12px;font-size:13px;cursor:pointer}
-.presets button:hover,.act button:hover{color:var(--txt);border-color:var(--brand)}
-.act{display:flex;gap:10px;margin-top:16px}
-.primary{background:linear-gradient(90deg,var(--brand),var(--brand2))!important;color:#0b1020!important;font-weight:700;border-color:transparent!important;padding:12px 22px!important;font-size:15px!important}
-.primary:disabled{opacity:.6;cursor:wait}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.presets button,.act button{background:var(--card);border:1px solid var(--line2);color:var(--txt);
+  border-radius:9px;padding:7px 13px;font-size:13px;cursor:pointer;transition:.15s;font-family:var(--sans);
+  display:inline-flex;align-items:center;gap:7px}
+.presets button:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-weak)}
+.act{display:flex;gap:10px;margin-top:16px;align-items:center}
+.primary{background:var(--brand)!important;border-color:var(--brand)!important;color:#fff!important;
+  font-weight:600;padding:10px 24px!important;font-size:14.5px!important}
+.primary:hover{background:var(--brand-h)!important;color:#fff!important}
+.primary:disabled{opacity:.55;cursor:wait}
+.act .kbd-hint{color:var(--faint);font-size:12px;margin-left:auto}
 #out{min-height:300px}
-.hint{color:var(--muted);font-size:14px;line-height:1.7}
-.hint code{background:var(--code);padding:2px 6px;border-radius:6px;font-size:12px}
-.loading{color:var(--brand);font-size:15px;padding:30px 0;text-align:center}
-.err{background:rgba(248,113,113,.1);border:1px solid var(--err);border-radius:12px;padding:14px 16px;color:#fecaca;font-size:14px;line-height:1.6}
-.meta{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);background:var(--code);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:14px}
+.hint{color:var(--muted);font-size:14px;line-height:1.85}
+.loading{color:var(--brand);font-size:14.5px;padding:30px 0;text-align:center}
+.err{background:var(--err-weak);border:1px solid rgba(220,38,38,.35);border-radius:10px;padding:14px 16px;
+  color:#9f1d1d;font-size:14px;line-height:1.7}
+.meta{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);background:var(--soft);
+  border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin-bottom:14px}
 .meta b{color:var(--txt);font-weight:600}
-.qcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px;background:rgba(255,255,255,.02)}
+.qcard{border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin-bottom:12px;background:var(--card)}
 .qhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .qid{font-family:var(--mono);font-weight:700;color:var(--brand)}
-.typ{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+.typ{font-size:11px;color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:2px 9px}
 .big{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.badge{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#0b1020;font-weight:800;font-size:18px;border-radius:10px;padding:6px 14px;text-transform:capitalize}
+.badge{background:var(--brand);color:#fff;font-weight:700;font-size:16.5px;border-radius:8px;padding:5px 13px}
+.badge.no{background:var(--soft);color:var(--muted)}
 .conf{color:var(--muted);font-size:13px}
 .bars{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 .brow{display:grid;grid-template-columns:150px 1fr 52px;align-items:center;gap:10px;font-size:12.5px}
 .blabel{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:capitalize}
-.bar{height:9px;background:#0a1128;border-radius:999px;overflow:hidden}
-.fill{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:999px}
+.bar{height:8px;background:var(--soft);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{display:block;height:100%;background:var(--brand);border-radius:999px}
 .bpct{color:var(--muted);text-align:right;font-family:var(--mono)}
-footer{border-top:1px solid var(--line);margin-top:30px;padding:18px 0;color:var(--muted);font-size:13px;text-align:center}
+footer{border-top:1px solid var(--line);margin-top:34px;padding:20px 0;color:var(--faint);font-size:13px;
+  text-align:center;background:var(--card)}
+footer a{color:var(--muted)} footer a:hover{color:var(--brand)}
 </style>
 </head>
 <body>
 <nav><div class="wrap">
-  <span class="logo">⚡ <a href="index.html">一键启动 Laya</a> · 在线试用</span>
-  <a href="https://github.com/rexleimo/laya-setup" target="_blank" rel="noopener">GitHub ★</a>
+  <span class="logo"><span class="logochip"><svg class="ic" width="15" height="15" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span><a href="index.html">一键启动 Laya</a>&nbsp;· 在线试用</span>
+  <a class="navbtn" href="https://github.com/rexleimo/laya-setup" target="_blank" rel="noopener">GitHub</a>
 </div></nav>
 
 <div class="wrap">
-  <h1>在线试用 · 本地决策模型</h1>
-  <p class="sub">输入一段内容 + 类型化问题，点「⚡ 决策」查看 Laya 的实时判断（分类 / 评分 / 概率）。数据打到本机 <code>http://127.0.0.1:8399</code>，不出本机。</p>
+  <div class="head">
+    <h1>在线试用 · 决策模型怎么用</h1>
+    <p class="sub">输入一段内容 + 类型化问题，点「决策」（或 <code>Ctrl+Enter</code>），看 Laya 如何对每个问题返回带校准概率的判断：<b>choice</b> 分类、<b>score</b> 程度评分、<b>noul</b> 是/否判断。</p>
+  </div>
+  <span class="modechip">演示模式 — 结果由浏览器本地模拟生成，不连接任何服务</span>
 
   <div class="grid">
     <div class="panel">
@@ -82,34 +112,34 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:18px 0;color:var
       <label>Questions（类型化问题 JSON）</label>
       <textarea id="questions" spellcheck="false"></textarea>
       <div class="presets">
-        <button onclick="preset('triage')">🎯 客服分诊</button>
-        <button onclick="preset('guard')">🛡️ 提示词护栏</button>
-        <button onclick="preset('email')">📮 邮件分流</button>
+        <button onclick="preset('triage')"><svg class="ic" width="14" height="14" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>客服分诊示例</button>
+        <button onclick="preset('guard')"><svg class="ic" width="14" height="14" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>提示词护栏示例</button>
+        <button onclick="preset('email')"><svg class="ic" width="14" height="14" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>邮件分流示例</button>
+        <button onclick="clearAll()">清空</button>
       </div>
       <div class="act">
-        <button class="primary" id="go" onclick="decide()">⚡ 决策</button>
-        <button onclick="preset('triage')">重置</button>
+        <button class="primary" id="go" onclick="decide()">决策</button>
+        <span class="kbd-hint">Ctrl + Enter 快速提交</span>
       </div>
     </div>
 
     <div class="panel">
       <h2>② 结果</h2>
       <div id="out"><div class="hint">
-        在左侧填入内容，点「⚡ 决策」。<br><br>
+        在左侧填入内容，点「决策」试试。<br><br>
         Laya <b>不生成文本</b>，只对每个问题返回带校准概率的判断：<br>
-        • <b>choice</b> 分类（哪个选项 + 各选项概率）<br>
-        • <b>score</b> 程度评分（分值 + 各档概率）<br>
-        • <b>noul</b> 是/否判断（概率）<br><br>
-        若连不上，请先在本机运行 <code>start.bat</code> / <code>./start.sh</code> 启动服务。
+        • <b>choice</b> — 哪个选项 + 各选项概率<br>
+        • <b>score</b> — 分值 + 各档概率<br>
+        • <b>noul</b> — 是/否概率<br><br>
+        本页的答案是浏览器按关键词规则<b>模拟</b>的，用来体验调用与返回结构；真实推理请本地启动服务后调用 <code>POST /predict</code>。
       </div></div>
     </div>
   </div>
 </div>
 
-<footer><div class="wrap">⚡ 一键启动 Laya · 本地推理，隐私不出本机 · <a href="index.html">返回首页</a></div></footer>
+<footer><div class="wrap">一键启动 Laya · 本地推理，隐私不出本机 · <a href="index.html">返回首页</a> · <a href="https://rexai.top/products/" target="_blank" rel="noopener">更多作品</a></div></footer>
 
 <script>
-var API = "http://127.0.0.1:8399";
 var PRESETS = {
   triage: {
     state: "We were billed twice for March. Please refund the duplicate today or we will cancel. This is the third time I'm writing and nobody has responded.",
@@ -132,17 +162,128 @@ var PRESETS = {
   email: {
     state: "Hi, I'm interested in your enterprise plan for a team of 50. Could you share pricing and schedule a demo next week? Thanks!",
     questions: {
-      category:{type:"choice",instructions:"What category is this email?",criteria:{support:"needs help with product",sales:"buying / pricing interest",spam:"unsolicited",other:"misc"}},
+      category:{type:"choice",instructions:"What category is this email?",criteria:{support:"needs help with product",sales:"buying / pricing interest",spam:"unsolicited bulk mail",other:"misc"}},
       spam:{type:"noul",instructions:"Is this spam?"},
       phishing:{type:"noul",instructions:"Is this a phishing attempt?"},
       needs_reply:{type:"noul",instructions:"Does this need a reply?"}
     }
   }
 };
-function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+
+/* ---------- 模拟引擎：纯前端，按概念规则给出"像模型"的结果 ---------- */
+function hashStr(s){var h=7;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h;}
+function jit(seed,min,max){return min+(hashStr(seed)%(max-min+1));}
+function toks(s){return (String(s).toLowerCase().match(/[a-z]{3,}/g))||[];}
+function stem(t){return t.replace(/(ing|ed|es|s)$/,"");}
+function overlap(text, phrase){
+  /* 词干级重合：billed↔billing、refund↔refunds 也能对上 */
+  var set={}; toks(text).forEach(function(t){set[stem(t)]=1;});
+  var hit=0; toks(phrase).forEach(function(t){
+    var st=stem(t);
+    if(st.length>=3 && !STOP[st] && set[st]) hit++;
+  });
+  return hit;
+}
+var STOP={this:1,that:1,does:1,user:1,users:1,request:1,requested:1,requesting:1,attempt:1,attempts:1,
+  contain:1,contains:1,need:1,needs:1,reply:1,leave:1,threaten:1,threatens:1,potential:1,severe:1,severity:1,
+  question:1,questions:1,instructions:1,instruction:1,criteria:1,everything:1,else:1,misc:1,other:1,
+  soon:1,attention:1,time:1,pressure:1,high:1,low:1,none:1};
+
+/* 概念层：一条正则命中即认为文本表达了该概念，供 choice/score/noul 共用 */
+var CONCEPTS=[
+  {re:/refund|billed|billing|invoice|double.?charg|charged twice|payment/i, words:["billing","invoice","payment","refund","charge"], w:1.5},
+  {re:/\berror|not working|outage|crash|broken|\bbug\b|system down/i, words:["technical","bug","error","outage"], w:1.1},
+  {re:/pricing|quote|\bdemo\b|\btrial\b|contract|\bplan\b|enterprise|purchas|interested in/i, words:["sales","pricing","contract","buying","interest"], w:1.1},
+  {re:/urgent|asap|immediately|right away|\btoday\b|deadline|blocking|critical|third time|again/i, words:["urgent","urgency","blocking","deadline"], w:1.3},
+  {re:/ignore (all |any )?(previous|prior|earlier)|developer mode|system prompt|no restrictions|reveal your|\bjailbreak\b|bypass/i, words:["jailbreak","safety","bypass","restriction","guidelines"], w:1.5},
+  {re:/prompt.?injection|inject/i, words:["injection","inject","prompt"], w:1.4},
+  {re:/password|api[ -]?key|credential|social security|credit card|confidential|sensitive|internal|leak|exfiltrat/i, words:["sensitive","leak","data"], w:1.3},
+  {re:/click here|verify your (account|identity)|confirm your account|winner|prize|lottery|inheritance|phishing|suspend/i, words:["phishing","scam","verify"], w:1.5},
+  {re:/unsubscribe|bulk mail|special promotion|advertisement|act now|limited offer|free money/i, words:["spam","unsolicited","bulk"], w:1.3},
+  {re:/\bcancel|switch to|take my business|looking elsewhere/i, words:["churn","cancel","leave"], w:1.3},
+  {re:/schedule|meeting|call me|get back|looking forward|interested|inquir/i, words:["reply","respond","needs"], w:0.9},
+  {re:/harm|illegal|weapon|exploit|attack|malicious|no restrictions|bypass|developer mode/i, words:["harm","severity","high"], w:1.1}
+];
+function conceptsOf(text){
+  var found=[]; CONCEPTS.forEach(function(c){ if(c.re.test(text)) found.push(c); });
+  return found;
+}
+function conceptBoost(found, optText){
+  var b=0; found.forEach(function(c){
+    var ot=optText.toLowerCase();
+    if(c.words.some(function(w){ return ot.indexOf(w)>=0 || overlap(ot, w)>0; })) b+=c.w;
+  });
+  return b;
+}
+function softmax(scores, temp){
+  var mx=Math.max.apply(null,scores), ex=scores.map(function(v){return Math.exp((v-mx)/temp);});
+  var sum=ex.reduce(function(a,b){return a+b;},0);
+  return ex.map(function(v){return v/sum;});
+}
+function choiceScore(text, criteria, found){
+  var keys=Object.keys(criteria), scores=[];
+  keys.forEach(function(k){
+    var opt=k+" "+criteria[k], sc=jit(text+k,0,4)/10;
+    if(overlap(text, k)>0) sc+=1.1;          /* 选项名（词干级）直接出现 */
+    sc+=overlap(text, opt)*0.7;              /* 描述词重合 */
+    sc+=conceptBoost(found, opt);            /* 概念命中 */
+    scores.push(sc);
+  });
+  var probs=softmax(scores,0.55), out={};
+  keys.forEach(function(k,i){ out[k]=Math.round(probs[i]*1000)/1000; });
+  return out;
+}
+function scoreResult(text, criteria, found){
+  var scores=criteria.map(function(d,i){
+    return overlap(text,d)*0.8 + conceptBoost(found,d) + jit(text+i,0,4)/10;
+  });
+  var probs=softmax(scores,0.5), out={}, ev=0;
+  criteria.forEach(function(d,i){ out[d]=Math.round(probs[i]*1000)/1000; ev+=probs[i]*i; });
+  return {probs:out, score:Math.round(ev*100)/100};
+}
+function noulScore(text, instructions, found, seed){
+  var t=text.toLowerCase(), s=0.06+jit(seed,0,6)/100;
+  /* 手工规则：常见场景直接抬升 */
+  if(/refund|money back|double.?charg|billed twice/.test(t)) s+=0.30;
+  if(/\bcancel|switch to|take my business/.test(t)) s+=0.24;
+  if(/urgent|asap|immediately|right away|\btoday\b/.test(t)) s+=0.14;
+  if(/password|api[ -]?key|credit card|social security|confidential|internal/.test(t)) s+=0.28;
+  if(/click here|verify your (account|identity)|winner|prize|lottery/.test(t)) s+=0.38;
+  if(/unsubscribe|special promotion|act now|limited offer/.test(t)) s+=0.28;
+  if(/schedule|meeting|demo|interested|quote|pricing|looking forward/.test(t)) s+=0.2;
+  /* 概念与问题说法对上（词干级）也抬升 */
+  s += overlap(text, instructions)*0.10;
+  found.forEach(function(c){ if(conceptBoost([c], instructions)>0) s+=c.w*0.35; });
+  return Math.max(0.03, Math.min(0.97, s));
+}
+function mockDecide(state, questions){
+  var found=conceptsOf(state), answers={};
+  Object.keys(questions).forEach(function(qid){
+    var q=questions[qid], seed=qid+state.length;
+    if(q.type==="choice"){
+      var p=choiceScore(state, q.criteria||{}, found);
+      var sorted=Object.keys(p).sort(function(a,b){return p[b]-p[a];});
+      var top=sorted[0], conf=Math.min(0.96, p[top]+jit(seed,0,4)/100);
+      answers[qid]={type:"choice", choice:top, confidence:Math.round(conf*1000)/1000, probabilities:p};
+    } else if(q.type==="score"){
+      var r=scoreResult(state, q.criteria||[], found);
+      answers[qid]={type:"score", score:r.score, legend:q.criteria, probabilities:r.probs};
+    } else { /* noul */
+      var n=noulScore(state, q.instructions||"", found, seed);
+      answers[qid]={type:"noul", noul:Math.round(n*1000)/1000};
+    }
+  });
+  return answers;
+}
+
 function preset(k){
   document.getElementById("state").value = PRESETS[k].state;
   document.getElementById("questions").value = JSON.stringify(PRESETS[k].questions, null, 2);
+}
+function clearAll(){
+  document.getElementById("state").value = "";
+  document.getElementById("questions").value = "";
+  document.getElementById("state").focus();
 }
 function bars(probs, legend){
   var e = Object.keys(probs).map(function(k){return [k, probs[k]];}).sort(function(a,b){return b[1]-a[1];});
@@ -153,8 +294,8 @@ function bars(probs, legend){
   });
   return h+'</div>';
 }
-function render(d){
-  var h = '<div class="meta"><span>模型 <b>'+esc(d.model)+'</b></span><span>设备 <b>'+esc(d.device)+'</b></span><span>耗时 <b>'+Number(d.latency_ms).toFixed(0)+' ms</b></span></div>';
+function render(state, d){
+  var h = '<div class="meta"><span>模型 <b>demo-mock（浏览器模拟）</b></span><span>设备 <b>browser</b></span><span>耗时 <b>'+Number(d.latency_ms).toFixed(0)+' ms</b></span></div>';
   var ans = d.answers || {};
   Object.keys(ans).forEach(function(qid){
     var a = ans[qid];
@@ -166,10 +307,11 @@ function render(d){
       var idx = Math.max(0, Math.min(keys.length-1, Math.round(a.score)));
       h += '<div class="big"><span class="badge">'+Number(a.score).toFixed(2)+'</span><span class="conf">≈ '+esc((a.legend||{})[idx]||'')+'</span></div>'+bars(a.probabilities, a.legend);
     } else if(a.type === "noul"){
-      h += '<div class="big"><span class="badge">'+(a.noul*100).toFixed(1)+'%</span><span class="conf">'+(a.noul>=0.5?'倾向：是':'倾向：否')+'</span></div>'
+      var yes = a.noul>=0.5;
+      h += '<div class="big"><span class="badge'+(yes?'':' no')+'">'+(a.noul*100).toFixed(1)+'%</span><span class="conf">'+(yes?'倾向：是':'倾向：否')+'</span></div>'
         + '<div class="bar"><span class="fill" style="width:'+(a.noul*100).toFixed(1)+'%"></span></div>';
     } else {
-      h += '<pre style="margin:0">'+esc(JSON.stringify(a,null,2))+'</pre>';
+      h += '<pre style="margin:0;overflow:auto">'+esc(JSON.stringify(a,null,2))+'</pre>';
     }
     h += '</div>';
   });
@@ -179,17 +321,24 @@ function decide(){
   var state = document.getElementById("state").value;
   var questions;
   try { questions = JSON.parse(document.getElementById("questions").value); }
-  catch(e){ document.getElementById("out").innerHTML = '<div class="err">⚠️ Questions 不是合法 JSON：'+esc(e.message)+'</div>'; return; }
-  var go = document.getElementById("go"); go.disabled = true; go.textContent = "⏳ 推理中…";
-  document.getElementById("out").innerHTML = '<div class="loading">⚡ 模型推理中…</div>';
-  fetch(API + "/predict", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({state:state, questions:questions})})
-    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
-    .then(render)
-    .catch(function(e){
-      document.getElementById("out").innerHTML = '<div class="err">⚠️ 无法连接 '+API+'<br>请确认本机服务已启动：<code>start.bat</code> / <code>./start.sh</code><br><small>'+esc(e.message)+'</small><br><small>若浏览器拦截跨域，可在项目目录运行 <code>python -m http.server 8000</code> 后访问 <code>localhost:8000/demo.html</code>。</small></div>';
-    })
-    .then(function(){ go.disabled=false; go.textContent="⚡ 决策"; });
+  catch(e){ document.getElementById("out").innerHTML = '<div class="err">Questions 不是合法 JSON：'+esc(e.message)+'</div>'; return; }
+  if(!state.trim()){ document.getElementById("out").innerHTML = '<div class="err">请先填写 State（要判定的内容）。</div>'; return; }
+  if(!questions || typeof questions!=="object" || !Object.keys(questions).length){
+    document.getElementById("out").innerHTML = '<div class="err">Questions 需要是一个非空对象，例如 {"department":{"type":"choice",...}}。</div>'; return;
+  }
+  var go = document.getElementById("go"); go.disabled = true; go.textContent = "计算中…";
+  document.getElementById("out").innerHTML = '<div class="loading">模拟计算中…</div>';
+  var ms = 220 + hashStr(state)%260;   /* 模拟真实推理的延迟感 */
+  setTimeout(function(){
+    var answers = mockDecide(state, questions);
+    render(state, {answers:answers, latency_ms:ms});
+    go.disabled=false; go.textContent="决策";
+  }, Math.min(ms, 480));
 }
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+document.addEventListener("keydown", function(e){
+  if((e.ctrlKey||e.metaKey) && e.key === "Enter"){ e.preventDefault(); decide(); }
+});
 preset("triage");
 </script>
 </body>
