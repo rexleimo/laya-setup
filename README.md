@@ -46,12 +46,12 @@ Laya 是一个**本地运行的 System-1 决策模型**：你给它一段内容�
 
 入口文件三端不同，逻辑完全一致：
 
-| 平台 | 首次 / 日常启动 | 图形面板 |
+| 平台 | 首次 / 日常启动 | 管理面板 |
 |------|----------------|---------------------|
 | **Windows** | `start.bat` | `start-gui.bat` |
 | **Linux / macOS** | `./start.sh` | `./start-gui.sh` |
 
-> 图形面板也可用 `start.bat gui` / `./start.sh gui` 打开；`start-gui.*` 是等价的快捷方式。
+> `start-gui.*` 会在浏览器打开管理面板（等价于 `start.bat panel`）。
 
 ```bash
 # Linux / macOS 首次需给执行权限
@@ -93,15 +93,17 @@ onekey **不自动探测区域**，而是引导你按网络选择：
 
 下载前可先 `python onekey.py doctor` 预检环境与磁盘空间（模型约 840MB）。
 
-### 图形面板（GUI）
+### 管理面板（Web GUI）
 
 ```bash
-start-gui.bat         # Windows
-./start-gui.sh        # Linux / macOS
-python onekey.py gui  # 或任意平台直接用 Python 调用
+start-gui.bat          # Windows：自动打开浏览器面板
+./start-gui.sh         # Linux / macOS
+python onekey.py panel # 或任意平台直接用 Python 调用
 ```
 
-tkinter 编写，三端零额外依赖（Linux 若缺 `tkinter` 需 `sudo apt install python3-tk`）。可**启动/停止服务、查看健康与模型状态、下载权重、安装 MCP/GPU 依赖，并实时查看服务日志**。
+`start-gui` 会在本地起一个管理服务（`http://127.0.0.1:8398`）并**自动用浏览器打开**，可**启动/停止服务、查看健康与模型状态、下载权重、安装 MCP/GPU 依赖、环境自检，并实时查看日志**。
+
+> 用浏览器而非 tkinter，是因为不少 Python（尤其 uv 安装的精简版）默认不带 tkinter，会导致双击 GUI 毫无反应；浏览器面板跨平台 100% 可用。若你的 Python 带 tkinter，也可用 `python onekey.py gui` 打开原生桌面面板。
 
 ### 在线试用（demo.html）
 

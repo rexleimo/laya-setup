@@ -1,4 +1,4 @@
 @echo off
-REM One-click Laya - open the GUI panel (equivalent to: start.bat gui)
+REM One-click Laya - open the Web management panel (equivalent to: start.bat panel)
 cd /d %~dp0
-call start.bat gui %*
+call start.bat panel %*

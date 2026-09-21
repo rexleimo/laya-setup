@@ -14,7 +14,8 @@
     python onekey.py status     打印当前状态 + 健康检查
     python onekey.py doctor     环境预检 (Python/uv/venv/磁盘/模型/下载源)
     python onekey.py model      下载模型权重 (--source mirror|official 选下载源)
-    python onekey.py gui        打开图形管理面板 (gui.py)
+    python onekey.py gui        打开 tkinter 图形面板 (gui.py, 需 python 带 tkinter)
+    python onekey.py panel      打开 Web 管理面板 (默认, 浏览器打开, 最通用)
     python onekey.py web        用默认浏览器打开状态页
     python onekey.py detach     后台方式起服务 (不占用当前终端)
 """
@@ -541,10 +542,10 @@ def build_parser():
     ap = argparse.ArgumentParser(prog="onekey", description="一键启动 — Laya 跨平台启动/管理入口")
     ap.add_argument("command", nargs="?", default="run",
                     choices=["run", "server", "gpu", "mcp", "stop", "status",
-                             "gui", "web", "detach", "doctor", "model"],
+                             "gui", "web", "detach", "doctor", "model", "panel"],
                     help="run=完整流程(默认) server=直接起 gpu=CUDA mcp=装桥接依赖 "
-                         "stop=停止 status=状态 gui=图形面板 web=打开状态页 "
-                         "detach=后台起服务 doctor=环境预检 model=下载模型")
+                         "stop=停止 status=状态 gui=tkinter面板 web=打开状态页 "
+                         "detach=后台起服务 doctor=环境预检 model=下载模型 panel=Web管理面板")
     ap.add_argument("--source", choices=["mirror", "official"], default=None,
                     help="配合 model 命令选择下载源: mirror=国内镜像(默认) official=HuggingFace 官方")
     return ap
@@ -557,6 +558,10 @@ def main(argv=None):
     if cmd == "gui":
         import gui  # 同目录
         gui.run()
+        return 0
+    if cmd == "panel":
+        import panel  # 同目录
+        panel.main()
         return 0
     if cmd == "web":
         open_web()
