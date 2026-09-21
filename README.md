@@ -1,0 +1,159 @@
+# 一键启动 Laya · One-Click Laya
+
+> **本地运行的 System-1 决策模型，一条命令在三端跑起来。** 无需懂 Python / PyTorch / 模型部署，自带图形面板管理服务。
+
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue)](https://github.com/rexleimo/laya-setup)
+[![Python](https://img.shields.io/badge/python-3.9%2B-3776AB?logo=python&logoColor=white)](https://github.com/rexleimo/laya-setup)
+[![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/rexleimo/laya-setup)
+[![Stars](https://img.shields.io/github/stars/rexleimo/laya-setup?style=social)](https://github.com/rexleimo/laya-setup)
+
+**English keywords:** *Laya · local decision model · System-1 AI · one-click setup · self-hosted LLM alternative · on-premise inference · TypeSafe-compatible API · MCP server · calibrated classification · no text generation.*
+
+---
+
+## 这是什么？
+
+**laya-setup** 是 [Laya](https://github.com/NandhaKishorM/laya) 本地决策服务的**一键启动工具包**。
+
+Laya 是一个**本地运行的 System-1 决策模型**：你给它一段内容（文本 / 邮件 / 工单 / JSON）加上一组**类型化问题**（分类 choice / 是否 noul / 评分 score），它用**单次前向传播**返回**带校准概率**的答案——它**不生成文本**，只做判断，CPU 上约 35–400ms 出结果。
+
+这个仓库把这些全部自动化：**建虚拟环境 → 装依赖 → 下载模型权重 → 启动 API 服务 → 图形化管理**，一条命令搞定，Windows / Linux / macOS 通用。
+
+## 解决什么痛点？
+
+| 痛点 | 一键启动如何解决 |
+|------|------------------|
+| 跑个本地模型要懂 Python/venv/torch/模型部署 | 全部自动，`start.bat` / `./start.sh` 一条命令 |
+| 下载 HuggingFace 权重国内慢 / 失败 | 默认国内镜像，海外可切官方源，附手动下载引导 |
+| 起停服务、看状态要敲命令 | 自带 GUI 面板，点按钮启停、看健康状态、看日志 |
+| 想让 AI Agent（Cline/Roo/Claude/AIOS）调用 | 内置 MCP 桥，5 个开箱即用的工具 |
+| 已有 TypeSafe SDK 工具链 | `TYPESAFE_BASE_URL` 指过来即可无缝切换，零改代码 |
+| 数据不能出本机 | 完全本地推理，隐私数据不出境 |
+
+## 特性
+
+- 🚀 **真·一键**：首次自动搭环境、下权重、起服务；之后直接启动
+- 🖥️ **三端通用**：Windows / Linux / macOS 逻辑一致，自动处理平台差异
+- 🖼️ **图形面板**：tkinter 编写，零额外依赖，启停服务 / 看状态 / 下模型 / 看日志
+- 🔌 **双接口**：Laya 原生 `/predict` + TypeSafe 兼容 `/v1/systemone`
+- 🤖 **MCP 桥**：`laya_decide` / `laya_triage` / `laya_guard` / `laya_email` / `laya_health`
+- 🇨🇳 **下载无忧**：国内镜像默认，海外官方源，ModelScope 备选，失败给手动指引
+- 🔒 **本地隐私**：全流程本机推理，适合处理敏感工单 / 邮件 / 内部数据
+
+---
+
+## 快速开始
+
+入口文件三端不同，逻辑完全一致：
+
+| 平台 | 首次 / 日常启动 | 图形面板 |
+|------|----------------|----------|
+| **Windows** | `start.bat` | `start.bat gui` |
+| **Linux / macOS** | `./start.sh` | `./start.sh gui` |
+
+```bash
+# Linux / macOS 首次需给执行权限
+chmod +x start.sh
+./start.sh
+```
+
+首次运行会自动：创建 `.venv` → 安装依赖与 PyTorch → 下载 english 权重（约 840MB）→ 启动 API（`http://127.0.0.1:8399`）。
+
+**前置要求：** Python 3.9+ 或 [uv](https://astral.sh/uv)（任选其一，装 uv 更快）。首次运行按 `bin/uv.exe` → 系统 `uv` → `python -m venv` 的顺序自动建环境。Windows 若想完全免 Python，可把 uv 可执行文件放到 `bin/`。
+
+### 命令参考
+
+底层都由跨平台脚本 `onekey.py` 驱动，三端可直接用 Python 调用：
+
+```bash
+python onekey.py            # 首次：建 venv、装依赖、下 english 权重、起 API
+python onekey.py server     # 以后：直接起 API
+python onekey.py gpu        # CUDA 版 torch（Windows/Linux；macOS 自动用 CPU/MPS）
+python onekey.py mcp        # 安装 MCP 桥接依赖
+python onekey.py stop       # 停止服务
+python onekey.py status     # 查看状态 + 健康检查
+python onekey.py detach     # 后台方式起服务（不占用当前终端）
+python onekey.py doctor     # 环境预检：Python/uv/venv/磁盘/模型/下载源
+python onekey.py model      # 下载模型权重（--source mirror|official）
+python onekey.py gui        # 打开图形管理面板
+python onekey.py web        # 用默认浏览器打开状态页
+```
+
+> `onekey.py` 自动处理平台差异：venv 路径（`Scripts\` vs `bin/`）、`uv` 查找（内置 / 系统 / 回退 `python -m venv`）、torch 安装源、进程停止方式（Windows `taskkill` vs Unix 信号）。
+
+### 下载源（国内 / 海外）
+
+onekey **不自动探测区域**，而是引导你按网络选择：
+
+- **国内用户**（默认，速度快）：镜像源 `hf-mirror.com`
+- **海外用户**：官方源 `huggingface.co`（`--source official` 或设 `HF_ENDPOINT`）
+- **手动下载**：国内镜像 / 官方 / [ModelScope](https://www.modelscope.cn/models/convaiinnovations/laya) 下载后放入 `models/laya/`
+
+下载前可先 `python onekey.py doctor` 预检环境与磁盘空间（模型约 840MB）。
+
+### 图形面板（GUI）
+
+```bash
+python onekey.py gui
+```
+
+tkinter 编写，三端零额外依赖（Linux 若缺 `tkinter` 需 `sudo apt install python3-tk`）。可**启动/停止服务、查看健康与模型状态、下载权重、安装 MCP/GPU 依赖，并实时查看服务日志**。
+
+---
+
+## HTTP 接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/health` | 存活 + 已加载/可用的 checkpoint |
+| GET | `/v1/models` | 模型列表（`jev-latest` 即 english） |
+| POST | `/predict` | Laya 原生：`{"state","questions","model"?}` |
+| POST | `/v1/systemone` | TypeSafe 兼容：设 `TYPESAFE_BASE_URL=http://127.0.0.1:8399` 即可对接 |
+| GET | `/` | 带 curl 示例的状态页 |
+
+```bash
+curl -s http://127.0.0.1:8399/predict -H "Content-Type: application/json" -d @- <<'EOF'
+{"state":"We were billed twice for March. Please refund the duplicate or we will cancel.",
+ "questions":{"department":{"type":"choice","instructions":"Which team?","criteria":{"billing":"refunds","technical":"bugs","sales":"pricing","other":"misc"}},
+              "urgency":{"type":"score","instructions":"How urgent?","criteria":["none","soon","blocking"]},
+              "churn_risk":{"type":"noul","instructions":"Threatens to cancel?"}}}
+EOF
+```
+
+Agent 接入细节见 [`LAYA.md`](LAYA.md)。
+
+## MCP 桥（给 Cline / Roo / Claude / AIOS 用）
+
+`python onekey.py mcp` 装好依赖后，用 `mcp_server.py` 以 stdio 启动即可（配置见 `mcp_config.example.json`）。工具：`laya_decide`、`laya_triage`、`laya_guard`、`laya_email`、`laya_health`。
+
+## 模型变体
+
+```bash
+python onekey.py model                                   # english（默认，~840MB）
+python download_model.py --variant multilingual          # 多语言（~650MB）
+python download_model.py --variant typed-decisions       # 专用决策头（~840MB）
+```
+
+非拉丁文本自动路由到 multilingual（若已下载），否则走 english。
+
+---
+
+## 常见问题（FAQ）
+
+**Q：需要 GPU 吗？** 不需要。CPU 即可运行（单次约 35–400ms）。需要更快可用 `onekey.py gpu`（NVIDIA CUDA）；macOS 用 CPU/MPS。
+
+**Q：模型权重多大？从哪里下？** 约 840MB。默认走国内镜像 `hf-mirror.com`，海外切官方 `huggingface.co`，也可从 ModelScope 手动下载放入 `models/laya/`。
+
+**Q：和调用云端大模型比有什么不同？** Laya 不生成文本，只对类型化问题返回**带校准概率**的判断，适合分流/分诊/护栏等决策场景；且完全本地，隐私数据不出本机。
+
+**Q：能接入我现有的工具链吗？** 可以。HTTP 端设 `TYPESAFE_BASE_URL=http://127.0.0.1:8399` 即可作为 TypeSafe 兼容替代；或用 MCP 桥接入各类代码 Agent。
+
+**Q：服务怎么停？** `python onekey.py stop`，或前台运行时按 `Ctrl+C`，或在 GUI 点「停止服务」。
+
+---
+
+## Star 历史 & 致谢
+
+如果它帮你省去了搭环境的麻烦，欢迎点个 ⭐。模型与推理来自 [NandhaKishorM/laya](https://github.com/NandhaKishorM/laya)，本仓库专注于**跨平台一键启动与运维**。
+
+**Topics:** `laya` `local-ai` `decision-model` `system-1` `one-click` `self-hosted` `typesafe` `mcp` `on-premise` `llm-alternative` `python` `cross-platform`

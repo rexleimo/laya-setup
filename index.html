@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一键启动 Laya — 本地 System-1 决策模型 · 三端一键部署 | One-Click Laya</title>
+<meta name="description" content="laya-setup 是 Laya 本地决策模型的一键启动工具包：一条命令在 Windows / Linux / macOS 建环境、下权重、起服务，自带 GUI 面板与 MCP 桥。本地推理、隐私不出本机、TypeSafe 兼容。">
+<meta name="keywords" content="Laya, laya-setup, 一键启动, 本地决策模型, local decision model, System-1 AI, one-click setup, self-hosted, on-premise, TypeSafe compatible, MCP server, calibrated classification, LLM alternative, cross-platform, Python">
+<meta name="author" content="rexleimo">
+<meta name="theme-color" content="#0b1020">
+<link rel="canonical" href="https://rexleimo.github.io/laya-setup/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="一键启动 Laya">
+<meta property="og:title" content="一键启动 Laya — 本地 System-1 决策模型 · 三端一键部署">
+<meta property="og:description" content="一条命令在 Windows/Linux/macOS 跑起本地决策模型，自带 GUI 面板与 MCP 桥。本地推理，隐私不出本机。">
+<meta property="og:url" content="https://rexleimo.github.io/laya-setup/">
+<meta property="og:image" content="https://rexleimo.github.io/laya-setup/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="一键启动 Laya — 本地 System-1 决策模型">
+<meta name="twitter:description" content="三端一键部署本地决策模型，GUI 管理，MCP 桥接，TypeSafe 兼容。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "一键启动 Laya (laya-setup)",
+  "alternateName": "One-Click Laya",
+  "description": "Laya 本地 System-1 决策模型的一键启动工具包，支持 Windows/Linux/macOS，自带 GUI 面板与 MCP 桥，本地推理、TypeSafe 兼容。",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Windows, macOS, Linux",
+  "programmingLanguage": "Python",
+  "url": "https://github.com/rexleimo/laya-setup",
+  "downloadUrl": "https://github.com/rexleimo/laya-setup",
+  "codeRepository": "https://github.com/rexleimo/laya-setup",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "One-click setup on Windows/Linux/macOS",
+    "Built-in tkinter GUI panel",
+    "MCP bridge for code agents",
+    "TypeSafe-compatible HTTP API",
+    "Local inference, privacy-preserving",
+    "China mirror / official HF / ModelScope download sources"
+  ],
+  "author": { "@type": "Person", "name": "rexleimo" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"需要 GPU 吗？","acceptedAnswer":{"@type":"Answer","text":"不需要。CPU 即可运行，单次约 35–400ms。可用 onekey.py gpu 启用 NVIDIA CUDA 加速，macOS 用 CPU/MPS。"}},
+    {"@type":"Question","name":"模型权重多大，从哪里下载？","acceptedAnswer":{"@type":"Answer","text":"约 840MB。默认走国内镜像 hf-mirror.com，海外可切官方 huggingface.co，也可从 ModelScope 手动下载放入 models/laya/。"}},
+    {"@type":"Question","name":"和调用云端大模型有什么不同？","acceptedAnswer":{"@type":"Answer","text":"Laya 不生成文本，只对类型化问题返回带校准概率的判断，适合分流/分诊/护栏等决策场景，且完全本地，隐私数据不出本机。"}},
+    {"@type":"Question","name":"能接入现有工具链吗？","acceptedAnswer":{"@type":"Answer","text":"可以。HTTP 端设置 TYPESAFE_BASE_URL 即可作为 TypeSafe 兼容替代；或用 MCP 桥接入 Cline/Roo/Claude/AIOS 等 Agent。"}}
+  ]
+}
+</script>
+
+<style>
+:root{
+  --bg:#0b1020; --bg2:#121a3a; --card:#151d3b; --line:#243056;
+  --txt:#e8ecf8; --muted:#9aa6c9; --brand:#6ea8fe; --brand2:#a78bfa;
+  --ok:#34d399; --code:#0e1630; --radius:16px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);color:var(--txt);
+  background:radial-gradient(1200px 600px at 70% -10%,#1b2a5e 0,transparent 60%),
+             linear-gradient(180deg,var(--bg) 0,var(--bg2) 100%);line-height:1.6}
+a{color:var(--brand);text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+/* nav */
+nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);
+  background:rgba(11,16,32,.7);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.logo .bolt{font-size:22px}
+.gh{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--line);
+  border-radius:999px;background:var(--card);font-size:14px;color:var(--txt);transition:.2s}
+.gh:hover{border-color:var(--brand);transform:translateY(-1px)}
+/* hero */
+header.hero{padding:84px 0 56px;text-align:center}
+.pill{display:inline-block;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(110,168,254,.08);color:var(--brand);font-size:13px;margin-bottom:22px}
+h1{font-size:clamp(30px,5vw,52px);line-height:1.15;margin:0 0 18px;
+  background:linear-gradient(90deg,#fff,#b9ccff 60%,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:clamp(16px,2.2vw,20px);color:var(--muted);max-width:760px;margin:0 auto 30px}
+.cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:12px;font-weight:600;font-size:15px;transition:.2s;cursor:pointer;border:1px solid transparent}
+.btn-p{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#0b1020}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(110,168,254,.35)}
+.btn-s{background:var(--card);border-color:var(--line);color:var(--txt)}
+.btn-s:hover{border-color:var(--brand)}
+.cmd{display:inline-flex;align-items:center;gap:12px;margin-top:10px;padding:12px 16px;border-radius:12px;
+  background:var(--code);border:1px solid var(--line);font-family:var(--mono);font-size:14px;color:#c7d4ff}
+.cmd button{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px}
+.cmd button:hover{color:var(--txt);border-color:var(--brand)}
+/* terminal mock */
+.term{max-width:680px;margin:34px auto 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  background:var(--code);box-shadow:0 30px 80px rgba(0,0,0,.45);text-align:left}
+.term .bar{display:flex;gap:7px;padding:11px 14px;background:#0a1128;border-bottom:1px solid var(--line)}
+.term .bar i{width:11px;height:11px;border-radius:50%;display:inline-block}
+.term pre{margin:0;padding:18px;font-family:var(--mono);font-size:13px;color:#a9d6ff;overflow:auto}
+.term .g{color:var(--ok)} .term .b{color:var(--brand)} .term .m{color:var(--muted)}
+/* sections */
+section{padding:64px 0}
+.eyebrow{color:var(--brand);font-weight:700;letter-spacing:.08em;font-size:13px;text-transform:uppercase}
+h2{font-size:clamp(24px,3.4vw,34px);margin:10px 0 12px}
+.lead{color:var(--muted);max-width:720px;margin:0 auto 34px;text-align:center}
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;transition:.2s}
+.card:hover{transform:translateY(-4px);border-color:var(--brand)}
+.card .ic{font-size:26px;margin-bottom:10px}
+.card h3{margin:0 0 8px;font-size:18px}
+.card p{margin:0;color:var(--muted);font-size:14.5px}
+/* steps + tabs */
+.tabs{display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.tab{padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;font-size:14px}
+.tab.on{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#0b1020;border-color:transparent;font-weight:600}
+.pane{display:none} .pane.on{display:block}
+.stepbox{background:var(--code);border:1px solid var(--line);border-radius:14px;padding:20px;font-family:var(--mono);font-size:14px;color:#c7d4ff}
+.stepbox .n{color:var(--brand2);font-weight:700}
+/* gui mock */
+.gui{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;max-width:760px;margin:0 auto}
+.gui .top{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700}
+.gui .body{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;padding:18px}
+.gui .row{display:flex;justify-content:space-between;font-size:14px}
+.gui .row span:first-child{color:var(--muted)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-right:7px;box-shadow:0 0 10px var(--ok)}
+.gui .btns{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gui .btns b{font:600 12px var(--sans);padding:7px 12px;border-radius:8px;border:1px solid var(--line);color:var(--muted)}
+.gui .btns b.pri{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#0b1020;border-color:transparent}
+/* faq */
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px}
+details summary{cursor:pointer;font-weight:600;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";float:right;color:var(--brand);font-size:20px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin:12px 0 0;color:var(--muted)}
+/* final cta */
+.final{text-align:center;background:linear-gradient(180deg,transparent,rgba(110,168,254,.06));border-top:1px solid var(--line)}
+footer{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:13.5px;text-align:center}
+/* reveal */
+.rv{opacity:0;transform:translateY(18px);transition:.6s ease}
+.rv.in{opacity:1;transform:none}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}.gui .body{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" href="#top"><span class="bolt">⚡</span>一键启动 Laya</a>
+  <a class="gh" href="https://github.com/rexleimo/laya-setup" target="_blank" rel="noopener">★ Star on GitHub</a>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="pill">本地 System-1 决策模型 · 三端一键部署</span>
+    <h1>一条命令，跑起你的本地决策模型</h1>
+    <p class="sub">laya-setup 把「建环境 → 下权重 → 起服务 → 管理」全部自动化。Windows / Linux / macOS 通用，自带图形面板与 MCP 桥。<b>本地推理，隐私不出本机。</b></p>
+    <div class="cta">
+      <a class="btn btn-p" href="https://github.com/rexleimo/laya-setup" target="_blank" rel="noopener">⚡ 立即获取</a>
+      <a class="btn btn-s" href="#quick">查看快速开始</a>
+    </div>
+    <div class="cmd"><span id="c">git clone https://github.com/rexleimo/laya-setup.git</span><button onclick="cp()">复制</button></div>
+
+    <div class="term">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+      <pre><span class="m">$ ./start.sh</span>
+<span class="b">[onekey]</span> creating virtual environment ...
+<span class="b">[onekey]</span> installing dependencies + PyTorch ...
+<span class="b">[onekey]</span> <span class="g">准备下载模型权重 (~840 MB)</span>
+<span class="b">[onekey]</span>   国内用户 → 镜像源 https://hf-mirror.com
+<span class="b">[onekey]</span>   海外用户 → https://huggingface.co
+<span class="b">[onekey]</span> starting API on http://127.0.0.1:8399 ...
+<span class="g">  ✓ Laya local decision API — running</span></pre>
+    </div>
+  </div>
+</header>
+
+<section class="wrap rv">
+  <div style="text-align:center">
+    <div class="eyebrow">Why</div>
+    <h2>别再为「跑个本地模型」折腾半天</h2>
+    <p class="lead">venv、torch、模型权重、服务启停……一键启动替你包办。</p>
+  </div>
+  <div class="grid g3">
+    <div class="card"><div class="ic">🧩</div><h3>零门槛</h3><p>不用懂 Python / PyTorch / 模型部署，双击或一行命令即可。</p></div>
+    <div class="card"><div class="ic">🌏</div><h3>下载无忧</h3><p>默认国内镜像，海外可切官方源，ModelScope 备选，失败给手动指引。</p></div>
+    <div class="card"><div class="ic">🖥️</div><h3>三端一致</h3><p>Windows / Linux / macOS 逻辑统一，自动处理平台差异。</p></div>
+    <div class="card"><div class="ic">🖼️</div><h3>图形面板</h3><p>tkinter 编写、零额外依赖，点按钮启停服务、看状态、看日志。</p></div>
+    <div class="card"><div class="ic">🔌</div><h3>双接口 + MCP</h3><p>Laya 原生与 TypeSafe 兼容 API；内置 MCP 桥接入各类 Agent。</p></div>
+    <div class="card"><div class="ic">🔒</div><h3>隐私优先</h3><p>全流程本机推理，敏感工单 / 邮件 / 内部数据不出境。</p></div>
+  </div>
+</section>
+
+<section class="wrap rv" id="quick">
+  <div style="text-align:center">
+    <div class="eyebrow">Quick Start</div>
+    <h2>三步跑起来</h2>
+    <p class="lead">选择你的系统，剩下的交给它。</p>
+  </div>
+  <div class="tabs">
+    <button class="tab on" data-t="win">Windows</button>
+    <button class="tab" data-t="mac">macOS</button>
+    <button class="tab" data-t="linux">Linux</button>
+  </div>
+  <div class="pane on" id="win"><div class="stepbox">
+    <div><span class="n">1.</span> git clone https://github.com/rexleimo/laya-setup.git &amp;&amp; cd laya-setup</div>
+    <div><span class="n">2.</span> start.bat            <span class="m"># 首次自动搭环境+下权重+起服务</span></div>
+    <div><span class="n">3.</span> start.bat gui        <span class="m"># 打开图形面板</span></div>
+  </div></div>
+  <div class="pane" id="mac"><div class="stepbox">
+    <div><span class="n">1.</span> git clone https://github.com/rexleimo/laya-setup.git &amp;&amp; cd laya-setup</div>
+    <div><span class="n">2.</span> chmod +x start.sh &amp;&amp; ./start.sh</div>
+    <div><span class="n">3.</span> ./start.sh gui</div>
+  </div></div>
+  <div class="pane" id="linux"><div class="stepbox">
+    <div><span class="n">1.</span> git clone https://github.com/rexleimo/laya-setup.git &amp;&amp; cd laya-setup</div>
+    <div><span class="n">2.</span> chmod +x start.sh &amp;&amp; ./start.sh</div>
+    <div><span class="n">3.</span> ./start.sh gui</div>
+  </div></div>
+</section>
+
+<section class="wrap rv">
+  <div style="text-align:center">
+    <div class="eyebrow">GUI</div>
+    <h2>一个面板，管理所有状态</h2>
+    <p class="lead">启停服务、健康检查、下载权重、安装依赖、实时日志，尽在掌握。</p>
+  </div>
+  <div class="gui">
+    <div class="top"><span>⚡ 一键启动 · Laya 本地决策服务</span><span style="color:var(--muted);font-weight:400;font-size:13px">http://127.0.0.1:8399/</span></div>
+    <div class="body">
+      <div class="row"><span>平台</span><span>Windows</span></div>
+      <div class="row"><span>虚拟环境</span><span>就绪</span></div>
+      <div class="row"><span>模型权重</span><span>已就绪</span></div>
+      <div class="row"><span>服务</span><span><span class="dot"></span>运行中</span></div>
+      <div class="row"><span>PID</span><span>134752</span></div>
+      <div class="row"><span>健康检查</span><span>OK · device=cpu · loaded=english</span></div>
+    </div>
+    <div class="btns"><b class="pri">启动服务</b><b>停止服务</b><b>刷新</b><b>下载模型</b><b>安装 MCP 依赖</b><b>安装 GPU</b><b>环境自检</b><b>打开状态页</b></div>
+  </div>
+</section>
+
+<section class="wrap rv">
+  <div style="text-align:center">
+    <div class="eyebrow">Use Cases</div>
+    <h2>它擅长「判断」，而非「生成」</h2>
+    <p class="lead">给一段内容 + 类型化问题，单次前向返回带校准概率的答案。</p>
+  </div>
+  <div class="grid g2">
+    <div class="card"><div class="ic">🎯</div><h3>客服分诊</h3><p>意图分类、紧急度评分、流失风险，一个请求全部返回。</p></div>
+    <div class="card"><div class="ic">🛡️</div><h3>提示词护栏</h3><p>越狱 / 注入 / 敏感数据的本地判定，给 LLM 加一道闸。</p></div>
+    <div class="card"><div class="ic">📮</div><h3>邮件分流</h3><p>类别 / 垃圾 / 钓鱼 / 是否需回复，自动路由。</p></div>
+    <div class="card"><div class="ic">🤖</div><h3>喂给 Agent</h3><p>MCP 工具直达 Cline / Roo / Claude / AIOS。</p></div>
+  </div>
+</section>
+
+<section class="wrap rv">
+  <div style="text-align:center"><div class="eyebrow">FAQ</div><h2>常见问题</h2></div>
+  <div style="max-width:760px;margin:0 auto">
+    <details><summary>需要 GPU 吗？</summary><p>不需要。CPU 即可运行（单次约 35–400ms）。可用 <code>onekey.py gpu</code> 启用 NVIDIA CUDA 加速，macOS 用 CPU/MPS。</p></details>
+    <details><summary>模型权重多大，从哪里下？</summary><p>约 840MB。默认走国内镜像 hf-mirror.com，海外可切官方 huggingface.co，也可从 ModelScope 手动下载放入 models/laya/。</p></details>
+    <details><summary>和调用云端大模型有什么不同？</summary><p>Laya 不生成文本，只对类型化问题返回带校准概率的判断，适合分流/分诊/护栏等决策场景，且完全本地，隐私数据不出本机。</p></details>
+    <details><summary>能接入我现有的工具链吗？</summary><p>可以。HTTP 端设置 TYPESAFE_BASE_URL 即可作为 TypeSafe 兼容替代；或用 MCP 桥接入各类代码 Agent。</p></details>
+  </div>
+</section>
+
+<section class="final wrap rv">
+  <h2>把本地决策能力，一键跑起来</h2>
+  <p class="lead">免费、开源、跨平台。现在就开始。</p>
+  <div class="cta" style="justify-content:center">
+    <a class="btn btn-p" href="https://github.com/rexleimo/laya-setup" target="_blank" rel="noopener">⚡ 获取 laya-setup</a>
+    <a class="btn btn-s" href="https://github.com/rexleimo/laya-setup" target="_blank" rel="noopener">★ Star 支持一下</a>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <p>⚡ 一键启动 Laya (laya-setup) · 模型与推理来自 <a href="https://github.com/NandhaKishorM/laya" target="_blank" rel="noopener">NandhaKishorM/laya</a> · MIT License</p>
+  <p>本地 · 隐私 · 跨平台 &nbsp;·&nbsp; <a href="https://github.com/rexleimo/laya-setup" target="_blank" rel="noopener">GitHub</a></p>
+</div></footer>
+
+<script>
+function cp(){navigator.clipboard.writeText(document.getElementById('c').textContent)
+  .then(()=>{event.target.textContent='已复制 ✓';setTimeout(()=>event.target.textContent='复制',1500)})}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.pane').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');document.getElementById(t.dataset.t).classList.add('on');
+}));
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+# 跨平台换行符：源码/脚本用 LF，Windows 批处理用 CRLF，二进制不转换
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.png binary
+*.exe binary

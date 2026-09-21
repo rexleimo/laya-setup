@@ -1,0 +1,38 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ---- 虚拟环境 (数百 MB) ----
+.venv/
+venv/
+env/
+
+# ---- 内置 uv 二进制 (~42MB, 不入库; 需要可自行放入 bin/) ----
+bin/
+
+# ---- 模型权重 (~840MB, 首次运行由 onekey 自动下载) ----
+models/
+
+# ---- 一键启动运行时状态 (PID / 日志) ----
+.onekey/
+
+# ---- 本机生成的配置 (含绝对路径; 只提交 .example 模板) ----
+mcp_config.json
+
+# ---- 日志 / 临时 / 系统 ----
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- AIOS / 编辑器工具产物 ----
+.aios/
+.contextdb-enable
+.idea/
+.vscode/

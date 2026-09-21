@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "laya": {
+      "command": "D:\\laya\\.venv\\Scripts\\python.exe",
+      "args": ["D:\\laya\\mcp_server.py"],
+      "env": {
+        "USE_TF": "0"
+      }
+    }
+  }
+}

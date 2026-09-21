@@ -1,0 +1,4 @@
+# Laya Python SDK (decision engine). torch is installed separately from the
+# PyTorch index by start.bat (CPU wheel by default, CUDA with `start.bat gpu`).
+laya>=0.3.4
+huggingface_hub>=0.20.0
