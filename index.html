@@ -54,7 +54,7 @@
     {"@type":"Question","name":"需要 GPU 吗？","acceptedAnswer":{"@type":"Answer","text":"不需要。CPU 即可运行，单次约 35–400ms。可用 onekey.py gpu 启用 NVIDIA CUDA 加速，macOS 用 CPU/MPS。"}},
     {"@type":"Question","name":"模型权重多大，从哪里下载？","acceptedAnswer":{"@type":"Answer","text":"约 840MB。默认走国内镜像 hf-mirror.com，海外可切官方 huggingface.co，也可从 ModelScope 手动下载放入 models/laya/。"}},
     {"@type":"Question","name":"和调用云端大模型有什么不同？","acceptedAnswer":{"@type":"Answer","text":"Laya 不生成文本，只对类型化问题返回带校准概率的判断，适合分流/分诊/护栏等决策场景，且完全本地，隐私数据不出本机。"}},
-    {"@type":"Question","name":"能接入现有工具链吗？","acceptedAnswer":{"@type":"Answer","text":"可以。HTTP 端设置 TYPESAFE_BASE_URL 即可作为 TypeSafe 兼容替代；或加载内置 Agent Skill（skills/laya/SKILL.md），Claude Code/Cline/Codex 等智能体即可学会调用。"}}
+    {"@type":"Question","name":"能接入现有工具链吗？","acceptedAnswer":{"@type":"Answer","text":"可以。HTTP 端设置 TYPESAFE_BASE_URL 即可作为 TypeSafe 兼容替代；或加载内置 Agent Skill（skills/laya/SKILL.md），Claude Code/Cline/Codex 等智能体即可学会调用；把 README 里的一句话安装提示词发给 Agent，它会自动完成下载与安装。"}}
   ]
 }
 </script>

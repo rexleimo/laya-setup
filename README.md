@@ -141,7 +141,22 @@ Agent 接入细节见 [`LAYA.md`](LAYA.md)。
 [`skills/laya/SKILL.md`](skills/laya/SKILL.md)，任何支持 Agent Skills 的智能体加载后
 就会正确调用（探活 → `POST /predict` → 解读 choice / score / noul 的概率答案）。
 
-### 下载并安装
+### 方式一：把提示词丢给大模型（推荐）
+
+既然用着大模型，就让大模型自己干活——把下面这段原样粘给你的 Agent 即可：
+
+```text
+请帮我安装 Laya 本地决策技能：
+1. 下载 https://raw.githubusercontent.com/rexleimo/laya-setup/main/skills/laya/SKILL.md
+2. 保存为 .claude/skills/laya/SKILL.md（目录不存在就创建；如果你不是 Claude Code，
+   就把这份内容放进你自己的技能/规则机制，比如 CLAUDE.md 或系统提示）
+3. 通读之后向我复述：你会在哪些场景用它、choice/score/noul 三种题型分别怎么调
+4. 顺手请求 http://127.0.0.1:8399/health，告诉我 Laya 服务现在是否在运行
+```
+
+Agent 会自己下载、自己安装、自己学会，还顺手帮你确认服务状态——全程只需粘贴一次。
+
+### 方式二：手动下载安装
 
 **Claude Code（项目级）** —— 在你的项目根目录执行：
 
