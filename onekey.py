@@ -14,8 +14,7 @@
     python onekey.py status     打印当前状态 + 健康检查
     python onekey.py doctor     环境预检 (Python/uv/venv/磁盘/模型/下载源)
     python onekey.py model      下载模型权重 (--source mirror|official 选下载源)
-    python onekey.py gui        打开 tkinter 图形面板 (gui.py, 需 python 带 tkinter)
-    python onekey.py panel      打开 Web 管理面板 (默认, 浏览器打开, 最通用)
+    python onekey.py panel      打开 Web 管理面板 (浏览器, 最通用; gui 为别名)
     python onekey.py web        用默认浏览器打开状态页
     python onekey.py detach     后台方式起服务 (不占用当前终端)
 """
@@ -102,13 +101,46 @@ def find_uv():
 
 
 def run(cmd, **kw):
-    """跑一条命令，实时透传输出；返回退出码。"""
+    """跑一条命令，返回退出码。
+
+    命令行模式：输出直接透传到终端。
+    面板模式 (注入了 emitter)：捕获子进程输出并逐行转发进面板日志，
+    否则装依赖 / 下模型的进度全写进了后台终端，浏览器里只能干等。
+    非终端环境下 pip / uv / huggingface_hub 本来就输出纯文本行，
+    再关掉各自的进度条即可保证日志干净。
+    """
     log("$ " + " ".join(str(c) for c in cmd))
+    if _EMIT is not None and not kw.pop("passthrough", False):
+        return _run_captured(cmd, **kw)
     try:
         return subprocess.call([str(c) for c in cmd], **kw)
     except FileNotFoundError as exc:
         log("command not found: %s (%s)" % (cmd[0], exc))
         return 127
+
+
+def _run_captured(cmd, **kw):
+    env = dict(os.environ)
+    env.setdefault("PIP_PROGRESS_BAR", "off")
+    env.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+    kw.setdefault("cwd", str(HERE))
+    try:
+        proc = subprocess.Popen(
+            [str(c) for c in cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            env=env, **kw,
+        )
+    except FileNotFoundError as exc:
+        log("command not found: %s (%s)" % (cmd[0], exc))
+        return 127
+    assert proc.stdout is not None
+    while True:
+        raw = proc.stdout.readline()
+        if not raw:
+            break
+        line = raw.decode("utf-8", "replace").rstrip()
+        if line:
+            log("  | " + line[:400])
+    return proc.wait()
 
 
 # --------------------------------------------------------------------------
@@ -444,16 +476,6 @@ def doctor():
         log("  - 虚拟环境: 未创建 (首次运行自动创建)")
 
     try:
-        import tkinter  # noqa: F401
-        log("  + tkinter: 可用 (GUI 可运行: onekey.py gui)")
-    except Exception:
-        log("  - tkinter: 不可用 (GUI 无法运行)")
-        if IS_LINUX:
-            log("      安装: sudo apt install python3-tk    # Debian/Ubuntu")
-        elif IS_MAC:
-            log("      一般随 Python 自带；若缺失请重装带 tk 的 Python")
-
-    try:
         free_gb = shutil.disk_usage(HERE).free / 1e9
         if free_gb >= 3:
             log("  + 磁盘: %.1f GB 可用 (足够下载 ~840MB 模型)" % free_gb)
@@ -475,9 +497,11 @@ def doctor():
 # --------------------------------------------------------------------------
 # 状态汇总 (命令行 status + GUI 刷新共用)
 # --------------------------------------------------------------------------
-def collect_status():
+def collect_status(health_result=None):
+    """汇总当前状态。health_result 可传入已查好的 /health 结果，
+    避免面板轮询时把 3s 超时的健康检查跑两遍。"""
     pid = is_running()
-    h = health()
+    h = health_result if health_result is not None else health()
     running = bool(pid)
     external = (not running) and (h is not None)  # 有服务在跑但非 onekey 启动
     return {
@@ -544,8 +568,8 @@ def build_parser():
                     choices=["run", "server", "gpu", "mcp", "stop", "status",
                              "gui", "web", "detach", "doctor", "model", "panel"],
                     help="run=完整流程(默认) server=直接起 gpu=CUDA mcp=装桥接依赖 "
-                         "stop=停止 status=状态 gui=tkinter面板 web=打开状态页 "
-                         "detach=后台起服务 doctor=环境预检 model=下载模型 panel=Web管理面板")
+                         "stop=停止 status=状态 panel=Web管理面板 (gui 为别名) "
+                         "web=打开状态页 detach=后台起服务 doctor=环境预检 model=下载模型")
     ap.add_argument("--source", choices=["mirror", "official"], default=None,
                     help="配合 model 命令选择下载源: mirror=国内镜像(默认) official=HuggingFace 官方")
     return ap
@@ -555,11 +579,7 @@ def main(argv=None):
     args = build_parser().parse_args(argv)
     cmd = args.command
 
-    if cmd == "gui":
-        import gui  # 同目录
-        gui.run()
-        return 0
-    if cmd == "panel":
+    if cmd in ("panel", "gui"):  # gui 为旧命令名，统一走 Web 面板
         import panel  # 同目录
         panel.main()
         return 0

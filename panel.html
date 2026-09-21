@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>一键启动 · 管理面板</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563ff'/%3E%3Cpath d='M35 8 16 37h12l-2 19 18-29H32l3-19z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#fafafa; --card:#ffffff; --soft:#f2f4f7; --line:rgba(27,27,31,.10); --line2:rgba(27,27,31,.18);
+  --txt:#1b1b1f; --muted:rgba(27,27,31,.62); --faint:rgba(27,27,31,.45);
+  --brand:#2563ff; --brand-h:#1d4fd8; --brand-weak:#e8f1ff;
+  --dark:#05060e;
+  --ok:#16a34a; --warn:#d97706; --err:#dc2626;
+  --sans:Inter,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);color:var(--txt);background:var(--bg);min-height:100vh;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:920px;margin:0 auto;padding:0 24px}
+a{color:inherit;text-decoration:none}
+svg.ic{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline}
+/* nav */
+nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  background:rgba(5,6,14,.78);border-bottom:1px solid rgba(255,255,255,.06);color:#fff}
+.navin{display:flex;align-items:center;justify-content:space-between;padding:11px 0}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15.5px}
+.logo small{color:rgba(255,255,255,.45);font-weight:400;font-size:12px;font-family:var(--mono);margin-left:2px;transition:.15s}
+.logo a:hover small{color:rgba(255,255,255,.9)}
+.logochip{width:28px;height:28px;border-radius:8px;background:var(--brand);display:inline-flex;
+  align-items:center;justify-content:center;color:#fff;flex:none}
+.lamp{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,.8);
+  border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 12px;background:rgba(255,255,255,.06)}
+.dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.3);flex:none;display:inline-block}
+.dot.on{background:#4ade80} .dot.off{background:#f87171} .dot.busy{background:#fbbf24}
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:16px 0}
+.card h2{font-size:12px;color:var(--muted);margin:0 0 12px;font-weight:650;letter-spacing:.07em;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{background:var(--soft);border-radius:10px;padding:10px 14px;min-width:0}
+.tile .k{font-size:12px;color:var(--muted);margin-bottom:5px}
+.tile .v{font-size:14.5px;font-weight:600;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.tile.wide{grid-column:1/-1}
+.tile.wide .v{white-space:normal;word-break:break-all}
+.cdot{width:7px;height:7px;border-radius:50%;background:rgba(27,27,31,.25);flex:none}
+.cdot.on{background:var(--ok)} .cdot.off{background:var(--err)} .cdot.warn{background:var(--warn)}
+.ok{color:var(--ok)} .err{color:var(--err)} .warn{color:var(--warn)}
+.cardhead{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 12px}
+.cardhead h2{margin:0}
+.sync{font-size:11.5px;color:var(--faint);font-family:var(--mono)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns button{display:inline-flex;align-items:center;gap:7px;background:var(--card);
+  border:1px solid var(--line2);color:var(--txt);border-radius:9px;padding:8px 14px;
+  font-size:13.5px;cursor:pointer;transition:.15s;font-family:var(--sans)}
+.btns button svg{flex:none}
+.btns button:hover{border-color:var(--brand);color:var(--brand)}
+.btns button.pri{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.btns button.pri:hover{background:var(--brand-h);color:#fff}
+.btns button.danger{color:var(--err);border-color:rgba(220,38,38,.4)}
+.btns button.danger:hover{background:#fdecec;border-color:var(--err);color:var(--err)}
+.btns button:disabled{opacity:.45;cursor:not-allowed}
+.btns button.busy{border-color:var(--warn);color:var(--warn);opacity:1;background:var(--card)}
+.hint{font-size:12.5px;color:var(--muted);margin:11px 0 0}
+/* log */
+.logbar{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px}
+.logbar button{background:none;border:1px solid var(--line2);color:var(--muted);border-radius:7px;
+  padding:4px 10px;font-size:12px;cursor:pointer;font-family:var(--sans)}
+.logbar button:hover{color:var(--txt);border-color:var(--brand)}
+#log{white-space:pre-wrap;word-break:break-all;font-family:var(--mono);font-size:12.5px;line-height:1.65;
+  color:#a9bce0;background:var(--dark);border:1px solid rgba(255,255,255,.08);border-radius:10px;
+  padding:13px 15px;height:240px;overflow:auto}
+footer{color:var(--faint);font-size:12.5px;text-align:center;padding:22px 0}
+footer a{color:var(--muted)} footer a:hover{color:var(--brand)}
+/* toasts */
+#toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:10}
+.toast{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--brand);
+  border-radius:10px;padding:10px 14px;font-size:13px;max-width:320px;color:var(--txt);
+  animation:pop .18s ease;box-shadow:0 14px 34px -18px rgba(15,23,42,.3)}
+.toast.ok{border-left-color:var(--ok)} .toast.warn{border-left-color:var(--warn)}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.htmx-indicator{opacity:0;transition:opacity .2s}
+.htmx-request .htmx-indicator,.htmx-request.htmx-indicator{opacity:1}
+@media(max-width:720px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}}
+</style></head><body>
+<nav><div class="wrap navin">
+  <span class="logo"><span class="logochip"><svg class="ic" width="15" height="15" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>Laya 管理面板<a href="http://127.0.0.1:8399/"><small>127.0.0.1:8399</small></a></span>
+  <span id="lampbox" class="lamp"><span class="dot"></span><span>检测中…</span></span>
+</div></nav>
+
+<div class="wrap">
+<!-- 主区域：状态 + 服务控制 + 环境维护，由服务端整片渲染，htmx 每 2.5s 换一次 -->
+<div id="ui" hx-get="/frag/state" hx-trigger="load, every 2.5s" hx-swap="morph:outerHTML">
+  <div class="card"><h2>状态</h2><p class="hint" style="margin:0">加载中…</p></div>
+</div>
+
+<div class="card"><h2>日志</h2>
+<div class="logbar">
+  <button hx-post="/api/clear_logs" hx-target="#log" hx-swap="innerHTML">清空显示</button>
+</div>
+<div id="log" hx-get="/frag/logs" hx-trigger="load, every 2.5s" hx-swap="innerHTML">加载中…</div>
+</div>
+
+<footer>一键启动 Laya · 本地推理 · <a href="https://github.com/rexleimo/laya-setup" target="_blank" rel="noopener">GitHub</a> · <a href="https://rexai.top/products/" target="_blank" rel="noopener">更多作品</a></footer>
+<div id="toasts"></div>
+</div>
+
+<script src="/htmx.min.js"></script>
+<script src="/idiomorph-ext.min.js"></script>
+<script>
+/* toast 自动消失：oob 插入的元素也能被扫到 */
+function sweepToasts(){
+  document.querySelectorAll("#toasts .toast").forEach(function(t){
+    if(t.dataset.gone) return; t.dataset.gone = "1";
+    setTimeout(function(){ t.style.opacity = "0"; t.style.transition = "opacity .3s"; }, 3800);
+    setTimeout(function(){ t.remove(); }, 4200);
+  });
+}
+document.addEventListener("htmx:afterSettle", sweepToasts);
+
+/* 日志贴底：仅当本来就在底部附近时才跟随滚动 */
+var stickLog = true;
+document.addEventListener("htmx:beforeSwap", function(e){
+  if(e.detail && e.detail.target && e.detail.target.id === "log"){
+    var el = e.detail.target;
+    stickLog = el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+  }
+});
+document.addEventListener("htmx:afterSwap", function(e){
+  if(e.detail && e.detail.target && e.detail.target.id === "log" && stickLog){
+    e.detail.target.scrollTop = e.detail.target.scrollHeight;
+  }
+});
+</script></body></html>
