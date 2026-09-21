@@ -103,6 +103,17 @@ python onekey.py gui  # 或任意平台直接用 Python 调用
 
 tkinter 编写，三端零额外依赖（Linux 若缺 `tkinter` 需 `sudo apt install python3-tk`）。可**启动/停止服务、查看健康与模型状态、下载权重、安装 MCP/GPU 依赖，并实时查看服务日志**。
 
+### 在线试用（demo.html）
+
+`demo.html` 是一个交互式试用页：左侧填入文本 + 类型化问题，点「⚡ 决策」即可实时看到 Laya 返回的分类 / 评分 / 概率。
+
+```bash
+# 服务运行后，用浏览器打开 demo.html：
+#   直接双击，或在项目目录 python -m http.server 8000 后访问 localhost:8000/demo.html
+```
+
+数据打到本机 `http://127.0.0.1:8399`，不出本机。落地页首页也有「在线试用」入口。
+
 ---
 
 ## HTTP 接口
