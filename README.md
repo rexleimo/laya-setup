@@ -141,9 +141,35 @@ Agent 接入细节见 [`LAYA.md`](LAYA.md)。
 [`skills/laya/SKILL.md`](skills/laya/SKILL.md)，任何支持 Agent Skills 的智能体加载后
 就会正确调用（探活 → `POST /predict` → 解读 choice / score / noul 的概率答案）。
 
-- **Claude Code**：把 `skills/laya/` 复制到项目的 `.claude/skills/` 下，或直接让 Agent 读该文件
-- **其他 Agent**：把 `SKILL.md` 内容放进系统提示 / 规则文件即可
-- 深入字段与模型变体见 [LAYA.md](LAYA.md)
+### 下载并安装
+
+**Claude Code（项目级）** —— 在你的项目根目录执行：
+
+```bash
+# macOS / Linux / Git Bash
+mkdir -p .claude/skills/laya
+curl -sL -o .claude/skills/laya/SKILL.md \
+  https://github.com/rexleimo/laya-setup/raw/main/skills/laya/SKILL.md
+```
+
+```powershell
+# Windows PowerShell
+New-Item -ItemType Directory -Force .claude\skills\laya | Out-Null
+Invoke-WebRequest https://github.com/rexleimo/laya-setup/raw/main/skills/laya/SKILL.md `
+     -OutFile .claude\skills\laya\SKILL.md
+```
+
+装到全局（所有项目可用）则放进 `~/.claude/skills/laya/`。装好后 Agent 会按需自动加载；
+也可以直接对它说「读一下 `.claude/skills/laya/SKILL.md`」立即生效。
+
+**其他 Agent / 手动方式**：浏览器打开
+[SKILL.md 全文](https://github.com/rexleimo/laya-setup/blob/main/skills/laya/SKILL.md)，
+整份复制进 Agent 的系统提示或规则文件（`CLAUDE.md` / `.cursorrules` / Cline 规则等）即可。
+
+> 下载版是"即丢即用"的单文件 Skill：无需注册、无需联网服务本身之外的东西；
+> 唯一前提是本机 Laya 服务在运行（没运行就 `python onekey.py run` 或面板点「启动服务」）。
+
+深入字段与模型变体见 [LAYA.md](LAYA.md)。
 
 ## 模型变体
 
