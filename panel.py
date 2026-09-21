@@ -152,10 +152,6 @@ def do_download():
     onekey.download_model(vp, "english")
 
 
-def do_mcp():
-    onekey.install_mcp(onekey.ensure_venv())
-
-
 def do_gpu():
     if onekey.IS_MAC:
         onekey.log("macOS 无 CUDA；默认 torch 已含 CPU/MPS。")
@@ -176,7 +172,6 @@ ROUTES = {
     "start": ("启动服务", do_start),
     "stop": ("停止服务", onekey.stop_server),
     "download": ("下载模型", do_download),
-    "mcp": ("安装 MCP 依赖", do_mcp),
     "gpu": ("安装 GPU torch", do_gpu),
     "doctor": ("环境自检", do_doctor),
     "web": ("打开状态页", do_web),
@@ -204,8 +199,6 @@ _IC = {
              '<path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>'),
     "box": ('<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>'
             '<path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>'),
-    "plug": ('<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/>'
-             '<path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>'),
     "zap": ('<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>'),
     "shield": ('<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>'
                '<path d="m9 12 2 2 4-4"/>'),
@@ -303,7 +296,6 @@ def frag_state():
 
     out.append('<div class="card"><h2>环境维护</h2><div class="btns">')
     out.append(_button("download", "下载模型权重", task, "down"))
-    out.append(_button("mcp", "安装 MCP 依赖", task, "plug"))
     out.append(_button("gpu", "安装 GPU (CUDA) torch", task, "zap",
                        confirm="安装 GPU 版 torch 会下载数 GB 的 CUDA 运行库，且仅在 NVIDIA 显卡上有用。继续？"))
     out.append(_button("doctor", "环境自检", task, "shield"))

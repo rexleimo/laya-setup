@@ -4,20 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>一键启动 Laya — 本地 System-1 决策模型 · 三端一键部署 | One-Click Laya</title>
-<meta name="description" content="laya-setup 是 Laya 本地决策模型的一键启动工具包：一条命令在 Windows / Linux / macOS 建环境、下权重、起服务，自带 Web 管理面板与 MCP 桥。本地推理、隐私不出本机、TypeSafe 兼容。">
-<meta name="keywords" content="Laya, laya-setup, 一键启动, 本地决策模型, local decision model, System-1 AI, one-click setup, self-hosted, on-premise, TypeSafe compatible, MCP server, calibrated classification, LLM alternative, cross-platform, Python">
+<meta name="description" content="laya-setup 是 Laya 本地决策模型的一键启动工具包：一条命令在 Windows / Linux / macOS 建环境、下权重、起服务，自带 Web 管理面板与 AI Agent Skill。本地推理、隐私不出本机、TypeSafe 兼容。">
+<meta name="keywords" content="Laya, laya-setup, 一键启动, 本地决策模型, local decision model, System-1 AI, one-click setup, self-hosted, on-premise, TypeSafe compatible, agent skill, calibrated classification, LLM alternative, cross-platform, Python">
 <meta name="author" content="rexleimo">
 <meta name="theme-color" content="#fafafa">
 <link rel="canonical" href="https://rexleimo.github.io/laya-setup/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="一键启动 Laya">
 <meta property="og:title" content="一键启动 Laya — 本地 System-1 决策模型 · 三端一键部署">
-<meta property="og:description" content="一条命令在 Windows/Linux/macOS 跑起本地决策模型，自带 Web 管理面板与 MCP 桥。本地推理，隐私不出本机。">
+<meta property="og:description" content="一条命令在 Windows/Linux/macOS 跑起本地决策模型，自带 Web 管理面板与 AI Agent Skill。本地推理，隐私不出本机。">
 <meta property="og:url" content="https://rexleimo.github.io/laya-setup/">
 <meta property="og:image" content="https://rexleimo.github.io/laya-setup/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="一键启动 Laya — 本地 System-1 决策模型">
-<meta name="twitter:description" content="三端一键部署本地决策模型，GUI 管理，MCP 桥接，TypeSafe 兼容。">
+<meta name="twitter:description" content="三端一键部署本地决策模型，GUI 管理，内置 Agent Skill，TypeSafe 兼容。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563ff'/%3E%3Cpath d='M35 8 16 37h12l-2 19 18-29H32l3-19z' fill='%23fff'/%3E%3C/svg%3E">
 
 <script type="application/ld+json">
@@ -26,7 +26,7 @@
   "@type": "SoftwareApplication",
   "name": "一键启动 Laya (laya-setup)",
   "alternateName": "One-Click Laya",
-  "description": "Laya 本地 System-1 决策模型的一键启动工具包，支持 Windows/Linux/macOS，自带 Web 管理面板与 MCP 桥，本地推理、TypeSafe 兼容。",
+  "description": "Laya 本地 System-1 决策模型的一键启动工具包，支持 Windows/Linux/macOS，自带 Web 管理面板与 AI Agent Skill，本地推理、TypeSafe 兼容。",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Windows, macOS, Linux",
   "programmingLanguage": "Python",
@@ -38,7 +38,7 @@
   "featureList": [
     "One-click setup on Windows/Linux/macOS",
     "Built-in web management panel",
-    "MCP bridge for code agents",
+    "Agent skill for AI coding agents",
     "TypeSafe-compatible HTTP API",
     "Local inference, privacy-preserving",
     "China mirror / official HF / ModelScope download sources"
@@ -54,7 +54,7 @@
     {"@type":"Question","name":"需要 GPU 吗？","acceptedAnswer":{"@type":"Answer","text":"不需要。CPU 即可运行，单次约 35–400ms。可用 onekey.py gpu 启用 NVIDIA CUDA 加速，macOS 用 CPU/MPS。"}},
     {"@type":"Question","name":"模型权重多大，从哪里下载？","acceptedAnswer":{"@type":"Answer","text":"约 840MB。默认走国内镜像 hf-mirror.com，海外可切官方 huggingface.co，也可从 ModelScope 手动下载放入 models/laya/。"}},
     {"@type":"Question","name":"和调用云端大模型有什么不同？","acceptedAnswer":{"@type":"Answer","text":"Laya 不生成文本，只对类型化问题返回带校准概率的判断，适合分流/分诊/护栏等决策场景，且完全本地，隐私数据不出本机。"}},
-    {"@type":"Question","name":"能接入现有工具链吗？","acceptedAnswer":{"@type":"Answer","text":"可以。HTTP 端设置 TYPESAFE_BASE_URL 即可作为 TypeSafe 兼容替代；或用 MCP 桥接入 Cline/Roo/Claude/AIOS 等 Agent。"}}
+    {"@type":"Question","name":"能接入现有工具链吗？","acceptedAnswer":{"@type":"Answer","text":"可以。HTTP 端设置 TYPESAFE_BASE_URL 即可作为 TypeSafe 兼容替代；或加载内置 Agent Skill（skills/laya/SKILL.md），Claude Code/Cline/Codex 等智能体即可学会调用。"}}
   ]
 }
 </script>
@@ -212,7 +212,7 @@ footer a:hover{color:var(--brand)}
     <div>
       <span class="pill">本地 System-1 决策模型 · 三端一键部署</span>
       <h1>一条命令，跑起你的<em>本地决策模型</em></h1>
-      <p class="sub">laya-setup 把「建环境 → 下权重 → 起服务 → 管理」全部自动化。Windows / Linux / macOS 通用，自带 Web 管理面板与 MCP 桥。<b>本地推理，隐私不出本机。</b></p>
+      <p class="sub">laya-setup 把「建环境 → 下权重 → 起服务 → 管理」全部自动化。Windows / Linux / macOS 通用，自带 Web 管理面板与 AI Agent Skill。<b>本地推理，隐私不出本机。</b></p>
       <div class="cta">
         <a class="btn btn-p" href="https://github.com/rexleimo/laya-setup" target="_blank" rel="noopener">立即获取</a>
         <a class="btn btn-s" href="demo.html">在线试用</a>
@@ -248,7 +248,7 @@ footer a:hover{color:var(--brand)}
     <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span><h3>下载无忧</h3><p>默认国内镜像，海外可切官方源，ModelScope 备选，失败给手动指引。</p></div>
     <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg></span><h3>三端一致</h3><p>Windows / Linux / macOS 逻辑统一，自动处理平台差异。</p></div>
     <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></span><h3>Web 管理面板</h3><p>浏览器直接打开、零额外依赖，点按钮启停服务、看状态、看日志。</p></div>
-    <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg></span><h3>双接口 + MCP</h3><p>Laya 原生与 TypeSafe 兼容 API；内置 MCP 桥接入各类 Agent。</p></div>
+    <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg></span><h3>双接口 + Agent Skill</h3><p>Laya 原生与 TypeSafe 兼容 API；内置 Skill 供各类智能体直接学会调用。</p></div>
     <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span><h3>隐私优先</h3><p>全流程本机推理，敏感工单 / 邮件 / 内部数据不出境。</p></div>
   </div>
 </section>
@@ -297,7 +297,7 @@ footer a:hover{color:var(--brand)}
       <div class="row"><span>PID</span><span>134752</span></div>
       <div class="row"><span>健康检查</span><span>OK · device=cpu · loaded=english</span></div>
     </div>
-    <div class="btns"><b class="pri">启动服务</b><b>停止服务</b><b>刷新</b><b>下载模型</b><b>安装 MCP 依赖</b><b>安装 GPU</b><b>环境自检</b><b>打开状态页</b></div>
+    <div class="btns"><b class="pri">启动服务</b><b>停止服务</b><b>刷新</b><b>下载模型</b><b>安装 GPU</b><b>环境自检</b><b>打开状态页</b></div>
   </div>
 </section>
 
@@ -311,7 +311,7 @@ footer a:hover{color:var(--brand)}
     <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></span><h3>客服分诊</h3><p>意图分类、紧急度评分、流失风险，一个请求全部返回。</p></div>
     <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></span><h3>提示词护栏</h3><p>越狱 / 注入 / 敏感数据的本地判定，给 LLM 加一道闸。</p></div>
     <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span><h3>邮件分流</h3><p>类别 / 垃圾 / 钓鱼 / 是否需回复，自动路由。</p></div>
-    <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></span><h3>喂给 Agent</h3><p>MCP 工具直达 Cline / Roo / Claude / AIOS。</p></div>
+    <div class="card"><span class="cardichip"><svg class="ic" width="19" height="19" viewBox="0 0 24 24"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></span><h3>喂给 Agent</h3><p>标准 Agent Skill，Claude Code / Cline / Codex 读一个文件就会调用。</p></div>
   </div>
 </section>
 
@@ -321,7 +321,7 @@ footer a:hover{color:var(--brand)}
     <details><summary>需要 GPU 吗？<span class="pm"><span class="h">+</span><span class="v">–</span></span></summary><p>不需要。CPU 即可运行（单次约 35–400ms）。可用 <code>onekey.py gpu</code> 启用 NVIDIA CUDA 加速，macOS 用 CPU/MPS。</p></details>
     <details><summary>模型权重多大，从哪里下？<span class="pm"><span class="h">+</span><span class="v">–</span></span></summary><p>约 840MB。默认走国内镜像 hf-mirror.com，海外可切官方 huggingface.co，也可从 ModelScope 手动下载放入 models/laya/。</p></details>
     <details><summary>和调用云端大模型有什么不同？<span class="pm"><span class="h">+</span><span class="v">–</span></span></summary><p>Laya 不生成文本，只对类型化问题返回带校准概率的判断，适合分流/分诊/护栏等决策场景，且完全本地，隐私数据不出本机。</p></details>
-    <details><summary>能接入我现有的工具链吗？<span class="pm"><span class="h">+</span><span class="v">–</span></span></summary><p>可以。HTTP 端设置 TYPESAFE_BASE_URL 即可作为 TypeSafe 兼容替代；或用 MCP 桥接入各类代码 Agent。</p></details>
+    <details><summary>能接入我现有的工具链吗？<span class="pm"><span class="h">+</span><span class="v">–</span></span></summary><p>可以。HTTP 端设置 TYPESAFE_BASE_URL 即可作为 TypeSafe 兼容替代；或加载内置 Agent Skill（skills/laya/SKILL.md），各类智能体即可学会调用。</p></details>
   </div>
 </section>
 

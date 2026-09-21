@@ -1,7 +1,10 @@
 # Laya 本地决策服务 — Agent 接入说明
 
 > 把本文件全文粘贴给任何 Agent / 大模型，它就能正确调用本服务。
-> 服务地址：`http://127.0.0.1:8399`（本地已启动，无需鉴权）
+> 服务地址：`http://127.0.0.1:8399`（本机服务，无需鉴权）
+>
+> 更推荐：给支持 Agent Skills 的智能体（Claude Code / Cline / Codex …）加载
+> 精简技能版 [`skills/laya/SKILL.md`](skills/laya/SKILL.md)，一个文件即学会调用。
 
 ## 1. 这是什么
 
@@ -79,29 +82,9 @@ TYPESAFE_BASE_URL=http://127.0.0.1:8399
 - `state` 必填，可以是字符串，也可以是对象（如 `{"from":…, "subject":…, "body":…}`）
 - 不要让 Laya 写文案、总结、翻译——它只做判断，不生成文本
 
-## 4. MCP 接入（Cline / Roo Code / Claude Desktop / AIOS 等）
-
-`mcp_config.json` 内容（stdio 启动）：
-
-```json
-{
-  "mcpServers": {
-    "laya": {
-      "command": "D:\\laya\\.venv\\Scripts\\python.exe",
-      "args": ["D:\\laya\\mcp_server.py"],
-      "env": {"USE_TF": "0"}
-    }
-  }
-}
-```
-
-5 个工具：`laya_decide`（通用）、`laya_triage`（客服分诊预设）、
-`laya_guard`（提示词护栏预设）、`laya_email`（邮件预设）、`laya_health`（探活）。
-依赖 `mcp<2`（FastMCP API），本机 `.venv` 已装好 `mcp==1.30.0`。
-
-## 5. 行为备注
+## 4. 行为备注
 
 - `model` 参数可省略：非拉丁文本自动路由到 multilingual（若已下载），否则用 english
 - 可用 checkpoint：`english`（已加载）、`multilingual`、`typed-decisions`（后两者需先下载）
 - 别名：`jev` / `jev-latest` / `laya` / `en` 均指向 english
-- 服务为本机手动启动；若 `/health` 不通，在本机执行 `D:\laya\start.bat server` 即可恢复
+- 服务为本机手动启动；若 `/health` 不通，在本机项目目录执行 `python onekey.py server`（或双击 `start.bat`）即可恢复

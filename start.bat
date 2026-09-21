@@ -3,7 +3,6 @@ REM One-click Laya - Windows entry point. All logic lives in onekey.py.
 REM   start.bat            first run: create venv, install deps, download weights, start API
 REM   start.bat server     start the API directly
 REM   start.bat gpu        CUDA torch
-REM   start.bat mcp        install MCP bridge deps
 REM   start.bat stop       stop the service
 REM   start.bat status     show status + health
 REM   start.bat gui        open the GUI panel

@@ -9,7 +9,6 @@
     python onekey.py            首次：建 venv、装依赖、下 english 权重、起 API
     python onekey.py server     直接起 API (跳过环境搭建)
     python onekey.py gpu        装 CUDA 版 torch 再起服务 (仅 Windows/Linux)
-    python onekey.py mcp        只装 MCP 桥接依赖 (mcp<2)
     python onekey.py stop       停止正在运行的服务
     python onekey.py status     打印当前状态 + 健康检查
     python onekey.py doctor     环境预检 (Python/uv/venv/磁盘/模型/下载源)
@@ -217,14 +216,6 @@ def install_torch(vp, mode):
         rc = pip_install(vp, ["torch"])
     if rc != 0:
         raise RuntimeError("failed to install torch (rc=%s)" % rc)
-
-
-def install_mcp(vp):
-    log("installing MCP bridge dependencies (mcp<2) ...")
-    rc = pip_install(vp, ["mcp<2"])
-    if rc != 0:
-        raise RuntimeError("failed to install MCP deps (rc=%s)" % rc)
-    log("MCP deps ready. Run: %s mcp_server.py" % vp)
 
 
 # --------------------------------------------------------------------------
@@ -510,7 +501,6 @@ def collect_status(health_result=None):
         "venv": venv_python().exists(),
         "torch": None,  # 由调用方按需填充 (检查较慢)
         "model": model_ready(),
-        "mcp": None,
         "running": running,
         "external": external,
         "pid": pid,
@@ -550,9 +540,6 @@ def full_setup(mode):
     vp = ensure_venv()
     install_base(vp)
     install_torch(vp, mode)
-    if mode == "mcp":
-        install_mcp(vp)
-        return 0
     if not model_ready():
         _warn_if_low_disk()
         download_model(vp, "english")
@@ -565,9 +552,9 @@ def full_setup(mode):
 def build_parser():
     ap = argparse.ArgumentParser(prog="onekey", description="一键启动 — Laya 跨平台启动/管理入口")
     ap.add_argument("command", nargs="?", default="run",
-                    choices=["run", "server", "gpu", "mcp", "stop", "status",
+                    choices=["run", "server", "gpu", "stop", "status",
                              "gui", "web", "detach", "doctor", "model", "panel"],
-                    help="run=完整流程(默认) server=直接起 gpu=CUDA mcp=装桥接依赖 "
+                    help="run=完整流程(默认) server=直接起 gpu=CUDA "
                          "stop=停止 status=状态 panel=Web管理面板 (gui 为别名) "
                          "web=打开状态页 detach=后台起服务 doctor=环境预检 model=下载模型")
     ap.add_argument("--source", choices=["mirror", "official"], default=None,
@@ -617,11 +604,6 @@ def main(argv=None):
             log("!! no model weights; run  onekey.py  first to download.")
             return 2
         start_server(vp, "english", detach=False)
-        return 0
-
-    if cmd == "mcp":
-        vp = ensure_venv()
-        install_mcp(vp)
         return 0
 
     if cmd == "gpu":

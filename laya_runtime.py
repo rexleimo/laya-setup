@@ -1,6 +1,6 @@
 """Shared Laya runtime: loads checkpoints and answers typed questions.
 
-Used by server.py (HTTP API) and mcp_server.py (MCP bridge).
+Used by server.py (HTTP API).
 
 Laya is a non-autoregressive System-1 decision model: you give it a `state`
 (text / email / ticket / JSON) plus typed `questions` (choice / noul / score),

@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/rexleimo/laya-setup)
 [![Stars](https://img.shields.io/github/stars/rexleimo/laya-setup?style=social)](https://github.com/rexleimo/laya-setup)
 
-**English keywords:** *Laya · local decision model · System-1 AI · one-click setup · self-hosted LLM alternative · on-premise inference · TypeSafe-compatible API · MCP server · calibrated classification · no text generation.*
+**English keywords:** *Laya · local decision model · System-1 AI · one-click setup · self-hosted LLM alternative · on-premise inference · TypeSafe-compatible API · agent skill · calibrated classification · no text generation.*
 
 ---
 
@@ -26,7 +26,7 @@ Laya 是一个**本地运行的 System-1 决策模型**：你给它一段内容�
 | 跑个本地模型要懂 Python/venv/torch/模型部署 | 全部自动，`start.bat` / `./start.sh` 一条命令 |
 | 下载 HuggingFace 权重国内慢 / 失败 | 默认国内镜像，海外可切官方源，附手动下载引导 |
 | 起停服务、看状态要敲命令 | 自带 Web 管理面板，点按钮启停、看健康状态、看日志 |
-| 想让 AI Agent（Cline/Roo/Claude/AIOS）调用 | 内置 MCP 桥，5 个开箱即用的工具 |
+| 想让 AI Agent（Claude Code/Cline/Codex）调用 | 提供标准 Agent Skill，智能体读一个文件就会调；本地 HTTP 直连，无需任何桥 |
 | 已有 TypeSafe SDK 工具链 | `TYPESAFE_BASE_URL` 指过来即可无缝切换，零改代码 |
 | 数据不能出本机 | 完全本地推理，隐私数据不出境 |
 
@@ -36,7 +36,7 @@ Laya 是一个**本地运行的 System-1 决策模型**：你给它一段内容�
 - **三端通用**：Windows / Linux / macOS 逻辑一致，自动处理平台差异
 - **Web 管理面板**：浏览器打开，零额外依赖，启停服务 / 看状态 / 下模型 / 看日志
 - **双接口**：Laya 原生 `/predict` + TypeSafe 兼容 `/v1/systemone`
-- **MCP 桥**：`laya_decide` / `laya_triage` / `laya_guard` / `laya_email` / `laya_health`
+- **Agent Skill**：内置 `skills/laya/SKILL.md`，Claude Code / Cline / Codex 等智能体加载即会用
 - **下载无忧**：国内镜像默认，海外官方源，ModelScope 备选，失败给手动指引
 - **本地隐私**：全流程本机推理，适合处理敏感工单 / 邮件 / 内部数据
 
@@ -71,7 +71,6 @@ chmod +x start.sh
 python onekey.py            # 首次：建 venv、装依赖、下 english 权重、起 API
 python onekey.py server     # 以后：直接起 API
 python onekey.py gpu        # CUDA 版 torch（Windows/Linux；macOS 自动用 CPU/MPS）
-python onekey.py mcp        # 安装 MCP 桥接依赖
 python onekey.py stop       # 停止服务
 python onekey.py status     # 查看状态 + 健康检查
 python onekey.py detach     # 后台方式起服务（不占用当前终端）
@@ -101,7 +100,7 @@ start-gui.bat          # Windows：自动打开浏览器面板
 python onekey.py panel # 或任意平台直接用 Python 调用
 ```
 
-`start-gui` 会在本地起一个管理服务（`http://127.0.0.1:8398`）并**自动用浏览器打开**，可**启动/停止服务、查看健康与模型状态、下载权重、安装 MCP/GPU 依赖、环境自检，并实时查看日志**。
+`start-gui` 会在本地起一个管理服务（`http://127.0.0.1:8398`）并**自动用浏览器打开**，可**启动/停止服务、查看健康与模型状态、下载权重、安装 GPU 依赖、环境自检，并实时查看日志**。
 
 > 用浏览器面板是因为不少 Python（尤其 uv 安装的精简版）默认不带 tkinter，会导致双击 GUI 毫无反应；浏览器面板跨平台 100% 可用。`python onekey.py gui` 现在也指向同一个 Web 面板。
 
@@ -136,9 +135,15 @@ EOF
 
 Agent 接入细节见 [`LAYA.md`](LAYA.md)。
 
-## MCP 桥（给 Cline / Roo / Claude / AIOS 用）
+## 给 AI Agent 的 Skill（Claude Code / Cline / Codex …）
 
-`python onekey.py mcp` 装好依赖后，用 `mcp_server.py` 以 stdio 启动即可（配置见 `mcp_config.example.json`）。工具：`laya_decide`、`laya_triage`、`laya_guard`、`laya_email`、`laya_health`。
+本地决策不需要 MCP 服务——Agent 在本机直接 HTTP 调用即可。仓库内置标准技能文件
+[`skills/laya/SKILL.md`](skills/laya/SKILL.md)，任何支持 Agent Skills 的智能体加载后
+就会正确调用（探活 → `POST /predict` → 解读 choice / score / noul 的概率答案）。
+
+- **Claude Code**：把 `skills/laya/` 复制到项目的 `.claude/skills/` 下，或直接让 Agent 读该文件
+- **其他 Agent**：把 `SKILL.md` 内容放进系统提示 / 规则文件即可
+- 深入字段与模型变体见 [LAYA.md](LAYA.md)
 
 ## 模型变体
 
@@ -160,7 +165,7 @@ python download_model.py --variant typed-decisions       # 专用决策头（~84
 
 **Q：和调用云端大模型比有什么不同？** Laya 不生成文本，只对类型化问题返回**带校准概率**的判断，适合分流/分诊/护栏等决策场景；且完全本地，隐私数据不出本机。
 
-**Q：能接入我现有的工具链吗？** 可以。HTTP 端设 `TYPESAFE_BASE_URL=http://127.0.0.1:8399` 即可作为 TypeSafe 兼容替代；或用 MCP 桥接入各类代码 Agent。
+**Q：能接入我现有的工具链吗？** 可以。HTTP 端设 `TYPESAFE_BASE_URL=http://127.0.0.1:8399` 即可作为 TypeSafe 兼容替代；AI Agent 则加载内置的 `skills/laya/SKILL.md` 即可学会调用。
 
 **Q：服务怎么停？** `python onekey.py stop`，或前台运行时按 `Ctrl+C`，或在管理面板点「停止服务」。
 
@@ -189,4 +194,4 @@ python download_model.py --variant typed-decisions       # 专用决策头（~84
 
 如果它帮你省去了搭环境的麻烦，欢迎点个 Star。模型与推理来自 [NandhaKishorM/laya](https://github.com/NandhaKishorM/laya)，本仓库专注于**跨平台一键启动与运维**。
 
-**Topics:** `laya` `local-ai` `decision-model` `system-1` `one-click` `self-hosted` `typesafe` `mcp` `on-premise` `llm-alternative` `python` `cross-platform`
+**Topics:** `laya` `local-ai` `decision-model` `system-1` `one-click` `self-hosted` `typesafe` `agent-skills` `on-premise` `llm-alternative` `python` `cross-platform`
